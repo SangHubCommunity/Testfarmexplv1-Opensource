@@ -1,0 +1,225 @@
+repeat task.wait() until game:IsLoaded()
+if game.CoreGui:FindFirstChild("BFAuto") then game.CoreGui.BFAuto:Destroy() end
+
+-- Services & Variables
+local plr = game.Players.LocalPlayer
+local rs = game:GetService("RunService")
+local ts = game:GetService("TweenService")
+local vim = game:GetService("VirtualInputManager")
+local rep = game:GetService("ReplicatedStorage")
+
+-- GUI Setup
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "BFAuto"
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 240, 0, 220)
+frame.Position = UDim2.new(0.05, 0, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+local function CreateButton(text, posY)
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(1, -20, 0, 30)
+	btn.Position = UDim2.new(0, 10, 0, posY)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 14
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+	return btn
+end
+
+-- Buttons
+local btnFarm = CreateButton("Auto Farm: OFF", 10)
+local btnMode = CreateButton("Vũ khí: Melee", 50)
+local btnESP = CreateButton("ESP Người Chơi: OFF", 90)
+local btnFruit = CreateButton("ESP Trái Ác Quỷ: OFF", 130)
+local btnHaki = CreateButton("Auto Haki: ON", 170)
+local btnCollect = CreateButton("Auto Nhặt Trái: ON", 210)
+
+-- Toggle States
+local autoFarm, useMelee = false, true
+local espOn, fruitEspOn = false, false
+local autoHaki, autoCollect = true, true
+
+-- Toggle Functions
+btnFarm.MouseButton1Click:Connect(function()
+	autoFarm = not autoFarm
+	btnFarm.Text = autoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
+end)
+btnMode.MouseButton1Click:Connect(function()
+	useMelee = not useMelee
+	btnMode.Text = useMelee and "Vũ khí: Melee" or "Vũ khí: Sword"
+end)
+btnESP.MouseButton1Click:Connect(function()
+	espOn = not espOn
+	btnESP.Text = espOn and "ESP Người Chơi: ON" or "ESP Người Chơi: OFF"
+end)
+btnFruit.MouseButton1Click:Connect(function()
+	fruitEspOn = not fruitEspOn
+	btnFruit.Text = fruitEspOn and "ESP Trái Ác Quỷ: ON" or "ESP Trái Ác Quỷ: OFF"
+end)
+btnHaki.MouseButton1Click:Connect(function()
+	autoHaki = not autoHaki
+	btnHaki.Text = autoHaki and "Auto Haki: ON" or "Auto Haki: OFF"
+end)
+btnCollect.MouseButton1Click:Connect(function()
+	autoCollect = not autoCollect
+	btnCollect.Text = autoCollect and "Auto Nhặt Trái: ON" or "Auto Nhặt Trái: OFF"
+end)
+
+-- Vũ khí danh sách
+local meleeList = {"Combat","Superhuman","Death Step","Sharkman Karate","Electric Claw","Dragon Talon","Godhuman","Fishman Karate","Dragon Breath"}
+local swordList = {"Katana","Cutlass","Iron Mace","Shisui","Yama","Rengoku","Saber","Dark Blade","Buddy Sword","Cursed Dual Katana"}
+-- Tạo tween
+local function TweenTo(pos)
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+	local t = ts:Create(hrp, TweenInfo.new((hrp.Position - pos).Magnitude/250, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+	t:Play()
+	t.Completed:Wait()
+end
+
+-- Tạo block ảo dưới chân
+local function MakePlat(pos)
+	local plat = workspace:FindFirstChild("BFPlat") or Instance.new("Part", workspace)
+	plat.Name = "BFPlat"
+	plat.Anchored = true
+	plat.CanCollide = true
+	plat.Transparency = 1
+	plat.Size = Vector3.new(10,1,10)
+	plat.Position = pos - Vector3.new(0,3,0)
+end
+
+-- Equip vũ khí
+local function Equip()
+	local bp = plr.Backpack:GetChildren()
+	for _,v in pairs(bp) do
+		if useMelee and table.find(meleeList,v.Name) then plr.Character.Humanoid:EquipTool(v) return end
+		if not useMelee and table.find(swordList,v.Name) then plr.Character.Humanoid:EquipTool(v) return end
+	end
+end
+
+-- Auto click
+local function Click()
+	vim:SendMouseButtonEvent(0,0,0,true,game,0)
+	task.wait()
+	vim:SendMouseButtonEvent(0,0,0,false,game,0)
+end
+
+-- Auto bật haki
+task.spawn(function()
+	while task.wait(1) do
+		if autoHaki then
+			pcall(function()
+				rep.Remotes.CommF_:InvokeServer("Buso")
+			end)
+		end
+	end
+end)
+
+-- Auto collect fruit
+task.spawn(function()
+	while task.wait(1) do
+		if autoCollect then
+			for _,v in pairs(workspace:GetChildren()) do
+				if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
+					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
+					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
+				end
+			end
+		end
+	end
+end)
+
+-- Get Target Theo Level
+local function GetTarget()
+	local lvl = plr.Data.Level.Value
+	local last
+	for l,v in pairs(getgenv().BF_LevelFarm) do
+		if lvl >= l then last = v end
+	end
+	return last
+end
+-- Farm Loop chính
+task.spawn(function()
+	local currentQuest = nil
+	while task.wait() do
+		if autoFarm then
+			local data = GetTarget()
+			if not data then continue end
+
+			local char = plr.Character
+			local hrp = char:WaitForChild("HumanoidRootPart")
+
+			-- Đứng im
+			hrp.Anchored = false
+
+			-- Nếu chưa có quest thì nhận
+			local hasQuest = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest") and plr.PlayerGui.Main.Quest.Visible
+			if not hasQuest then
+				TweenTo(data.QuestPos)
+				task.wait(0.4)
+				rep.Remotes.CommF_:InvokeServer("StartQuest", data.Quest, 1)
+				currentQuest = data.Mob
+				task.wait(0.6)
+			end
+
+			-- Tìm mob đúng
+			for _, mob in pairs(workspace.Enemies:GetChildren()) do
+				if mob.Name == data.Mob and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+					local root = mob.HumanoidRootPart
+					
+					-- Fix hitbox
+					for _,v in ipairs(mob:GetChildren()) do
+						if v:IsA("BasePart") then
+							v.Size = Vector3.new(60,60,60)
+							v.Transparency = 0.2
+							v.CanCollide = false
+						end
+					end
+
+					-- Tạo block ảo dưới mob
+					local anchor = Instance.new("Part", mob)
+					anchor.Anchored = true
+					anchor.Transparency = 1
+					anchor.CanCollide = true
+					anchor.Size = Vector3.new(8,1,8)
+					anchor.Position = root.Position + Vector3.new(0, mob.Humanoid.HipHeight*3, 0)
+
+					-- Farm
+					repeat
+						TweenTo(anchor.Position + Vector3.new(0,1,0))
+						MakePlat(hrp.Position)
+						Equip()
+						hrp.Anchored = true
+						Click()
+						task.wait(0.1)
+					until not autoFarm or not mob or mob.Humanoid.Health <= 0
+
+					hrp.Anchored = false
+					break
+				end
+			end
+
+			-- Sau khi đánh xong mới nhận quest mới
+			local mobExist = false
+			for _, mob in pairs(workspace.Enemies:GetChildren()) do
+				if mob.Name == currentQuest and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+					mobExist = true
+				end
+			end
+
+			if not mobExist then
+				currentQuest = nil
+			end
+		else
+			-- Xoá block ảo nếu tắt farm
+			if workspace:FindFirstChild("BFPlat") then workspace.BFPlat:Destroy() end
+		end
+	end
+end)
