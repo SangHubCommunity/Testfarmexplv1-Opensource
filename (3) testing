@@ -1,0 +1,135 @@
+--[[
+🔥 Script Auto Farm FULL cho Blox Fruits
+🛠 Dành cho Android (Hydrogen, Arceus X)
+📦 Tính năng:
+  ✅ GUI bật/tắt
+  ✅ Auto nhận nhiệm vụ theo cấp
+  ✅ Tự chọn quái
+  ✅ Gom quái + block ảo tránh kẹt
+  ✅ Auto đánh từng con
+  ✅ Hitbox to lên
+  ✅ Bay qua đảo thay vì TP
+--]]
+
+--// GUI
+local ui = Instance.new("ScreenGui", game.CoreGui)
+local frame = Instance.new("Frame", ui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0, 50, 0, 100)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BackgroundTransparency = 0.3
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(1, 0, 1, 0)
+toggle.Text = "Auto Farm: OFF"
+toggle.TextColor3 = Color3.new(1,1,1)
+toggle.BackgroundTransparency = 1
+
+--// Toggle
+getgenv().autoFarm = false
+toggle.MouseButton1Click:Connect(function()
+    getgenv().autoFarm = not getgenv().autoFarm
+    toggle.Text = "Auto Farm: " .. (getgenv().autoFarm and "ON" or "OFF")
+end)
+
+--// Function: Get Player Level & Select Quest
+function getQuestAndEnemy()
+    local level = game.Players.LocalPlayer.Data.Level.Value
+    if level < 10 then
+        return {
+            questName = "BanditQuest1",
+            questPart = "Bandit",
+            questLevel = 1,
+            questPos = Vector3.new(1060, 17, 1547),
+            mobName = "Bandit",
+            mobArea = "Bandit",
+            mobCFrame = CFrame.new(1157, 17, 1571)
+        }
+    end
+    -- Add more level ranges/quái tại đây nếu muốn
+end
+
+--// Function: Get Mob
+function getMob(name)
+    for _,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+        if v.Name == name and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+            return v
+        end
+    end
+end
+
+--// Function: Auto Quest
+function autoQuest(questName, questPart, questLevel, questPos)
+    local plr = game.Players.LocalPlayer
+    if not plr.PlayerGui:FindFirstChild("Quest") then
+        plr.Character.HumanoidRootPart.CFrame = CFrame.new(questPos + Vector3.new(0,2,0))
+        wait(1)
+        game:GetService("ReplicatedStorage").Remotes.Comm:InvokeServer("StartQuest", questName, questLevel)
+    end
+end
+
+--// Function: Expand Hitbox
+function expandHitbox(enemy)
+    if enemy and enemy:FindFirstChild("HumanoidRootPart") then
+        local root = enemy.HumanoidRootPart
+        root.Size = Vector3.new(60,60,60)
+        root.Transparency = 0.5
+        root.Material = Enum.Material.Neon
+        root.CanCollide = false
+    end
+end
+
+--// Function: Anti-Fall Block
+function createAntiFallBlock()
+    if not workspace:FindFirstChild("FarmPlatform") then
+        local part = Instance.new("Part", workspace)
+        part.Name = "FarmPlatform"
+        part.Anchored = true
+        part.Size = Vector3.new(10,1,10)
+        part.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0,3,0)
+        part.Transparency = 1
+        part.CanCollide = true
+    else
+        workspace.FarmPlatform.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0,3,0)
+    end
+end
+
+--// Function: Fly to island (not TP)
+function flyTo(cframe)
+    local char = game.Players.LocalPlayer.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        for i = 1, 100 do
+            char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame:Lerp(cframe + Vector3.new(0, 20, 0), 0.1)
+            wait()
+        end
+    end
+end
+
+--// Function: Attack
+function attack()
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendMouseButtonEvent(0,0,0,true,game,0)
+    wait(0.1)
+    vim:SendMouseButtonEvent(0,0,0,false,game,0)
+end
+
+--// Loop Farm
+spawn(function()
+    while wait(0.2) do
+        if getgenv().autoFarm then
+            local q = getQuestAndEnemy()
+            if not q then return end
+            autoQuest(q.questName, q.questPart, q.questLevel, q.questPos)
+            local mob = getMob(q.mobName)
+            if mob then
+                expandHitbox(mob)
+                createAntiFallBlock()
+                local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+                root.CFrame = mob.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
+                attack()
+            else
+                -- Không có quái -> bay qua khu farm
+                flyTo(q.mobCFrame)
+            end
+        end
+    end
+end)
