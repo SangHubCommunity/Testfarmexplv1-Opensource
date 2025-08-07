@@ -1,0 +1,56 @@
+-- Blox Fruits Auto Farm Quái Cấp 1 + GUI bật tắt
+-- Dùng với Hydrogen / Arceus X / Delta
+
+-- GUI
+local ui = Instance.new("ScreenGui", game.CoreGui)
+local frame = Instance.new("Frame", ui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(1, 0, 1, 0)
+toggle.Text = "Auto Farm: OFF"
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+
+-- Biến điều khiển
+local farming = false
+
+-- Hàm Auto Farm
+function autoFarm()
+	while farming do
+		local player = game.Players.LocalPlayer
+		local char = player.Character
+		if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+		-- Tìm quái cấp 1 (Bandit)
+		for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+			if v.Name == "Bandit" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+				-- Bay lên đầu quái
+				char.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
+
+				-- Tăng hitbox
+				v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+				v.HumanoidRootPart.Transparency = 0.5
+				v.HumanoidRootPart.CanCollide = false
+
+				-- Auto Click (dùng Combat tool)
+				game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 0)
+				wait(0.05)
+				game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 0)
+			end
+		end
+
+		task.wait(0.1)
+	end
+end
+
+-- Bật tắt GUI
+toggle.MouseButton1Click:Connect(function()
+	farming = not farming
+	toggle.Text = "Auto Farm: " .. (farming and "ON" or "OFF")
+	if farming then
+		coroutine.wrap(autoFarm)()
+	end
+end)
