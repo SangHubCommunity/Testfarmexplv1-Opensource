@@ -1,0 +1,139 @@
+--===[ CONFIG ]===--
+local FarmEnabled = false
+local VirtualUser = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Camera = workspace.CurrentCamera
+
+--===[ GUI ]===--
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Toggle = Instance.new("TextButton", ScreenGui)
+Toggle.Size = UDim2.new(0, 100, 0, 40)
+Toggle.Position = UDim2.new(0, 10, 0, 10)
+Toggle.Text = "Auto Farm: OFF"
+Toggle.BackgroundColor3 = Color3.new(1, 0.5, 0.5)
+Toggle.TextColor3 = Color3.new(1, 1, 1)
+Toggle.TextScaled = true
+
+Toggle.MouseButton1Click:Connect(function()
+    FarmEnabled = not FarmEnabled
+    Toggle.Text = FarmEnabled and "Auto Farm: ON" or "Auto Farm: OFF"
+    Toggle.BackgroundColor3 = FarmEnabled and Color3.new(0.2, 0.8, 0.2) or Color3.new(1, 0.5, 0.5)
+end)
+
+--===[ FUNCTIONS ]===--
+
+function getMobData()
+    local level = LocalPlayer.Data.Level.Value
+    if level <= 10 then
+        return {
+            QuestName = "BanditQuest1",
+            QuestNPC = "BanditQuest",
+            Monster = "Bandit",
+            Pos = CFrame.new(1060, 17, 1549)
+        }
+    end
+    -- Có thể thêm nhiều dữ liệu mob khác theo cấp độ tại đây
+end
+
+function flyTo(pos)
+    local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+    local goal = {}
+    goal.CFrame = pos
+    TweenService:Create(hrp, TweenInfo.new((hrp.Position - pos.Position).Magnitude / 100, Enum.EasingStyle.Linear), goal):Play()
+    repeat task.wait() until (hrp.Position - pos.Position).Magnitude < 10 or not FarmEnabled
+end
+
+function touchNPC(npcName)
+    local npc = workspace:FindFirstChild(npcName)
+    if npc and npc:FindFirstChild("Head") then
+        flyTo(npc.Head.CFrame + Vector3.new(0, 3, 0))
+        wait(0.5)
+        fireclickdetector(npc.Head:FindFirstChildOfClass("ClickDetector"))
+    end
+end
+
+function acceptQuest(questName)
+    local args = {
+        [1] = questName,
+        [2] = 1
+    }
+    ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
+end
+
+function getMob(monsterName)
+    for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+        if mob.Name == monsterName and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+            return mob
+        end
+    end
+end
+
+function createPlatform()
+    local part = Instance.new("Part", workspace)
+    part.Size = Vector3.new(6, 1, 6)
+    part.Anchored = true
+    part.Transparency = 1
+    part.Name = "AntiFall"
+    return part
+end
+
+function attack()
+    VirtualUser:Button1Down(Vector2.new(), Camera.CFrame)
+end
+
+function farm()
+    while FarmEnabled and task.wait() do
+        local mobData = getMobData()
+        if not mobData then return end
+
+        -- Nhận nhiệm vụ nếu chưa có
+        if not LocalPlayer.PlayerGui:FindFirstChild("QuestGUI") then
+            touchNPC(mobData.QuestNPC)
+            wait(0.5)
+            acceptQuest(mobData.QuestName)
+        end
+
+        -- Tìm mob
+        local mob = getMob(mobData.Monster)
+        if mob then
+            local root = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+            local mobRoot = mob:FindFirstChild("HumanoidRootPart")
+            local platform = createPlatform()
+            platform.CFrame = mobRoot.CFrame - Vector3.new(0, mob.Humanoid.HipHeight + 3, 0)
+
+            -- Mở rộng hitbox
+            for _,v in ipairs(mob:GetChildren()) do
+                if v:IsA("BasePart") then
+                    v.Size = Vector3.new(60,60,60)
+                    v.Transparency = 0.7
+                end
+            end
+
+            -- Bay lên đầu mob
+            root.CFrame = mobRoot.CFrame + Vector3.new(0, 5, 0)
+
+            while mob and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and FarmEnabled do
+                root.CFrame = mobRoot.CFrame + Vector3.new(0, 5, 0)
+                attack()
+                task.wait(0.2)
+            end
+
+            if platform then platform:Destroy() end
+        else
+            flyTo(mobData.Pos)
+        end
+    end
+end
+
+--===[ AUTO LOOP ]===--
+task.spawn(function()
+    while task.wait(1) do
+        if FarmEnabled then
+            pcall(farm)
+        end
+    end
+end)
