@@ -1,0 +1,125 @@
+-- Blox Fruits - Auto Farm Bandit Full Combo (Fixed)
+-- Dùng trên Hydrogen / Arceus X
+
+local ui = Instance.new("ScreenGui", game.CoreGui)
+local frame = Instance.new("Frame", ui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(1, 0, 1, 0)
+toggle.Text = "Auto Farm: OFF"
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+
+local farming = false
+local targetEnemy = nil
+
+function createAntiFallBlock()
+	local part = Instance.new("Part", workspace)
+	part.Anchored = true
+	part.Size = Vector3.new(5, 1, 5)
+	part.Transparency = 1
+	part.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+	part.Name = "AntiFallBlock"
+	part.CanCollide = true
+end
+
+function pullAllBandits(centerPos)
+	for _, v in pairs(workspace.Enemies:GetChildren()) do
+		if string.match(v.Name, "Bandit") and v:FindFirstChild("HumanoidRootPart") then
+			v.HumanoidRootPart.CFrame = CFrame.new(centerPos)
+			v.HumanoidRootPart.Anchored = true
+		end
+	end
+end
+
+function getBanditQuest()
+	local player = game.Players.LocalPlayer
+	local questGui = player.PlayerGui:FindFirstChild("QuestGUI")
+	if not questGui or not questGui.Enabled then
+		local args = {
+			[1] = "BanditQuest1",
+			[2] = 1
+		}
+		local success, err = pcall(function()
+			game:GetService("ReplicatedStorage").Remotes.Comm:InvokeServer("StartQuest", unpack(args))
+		end)
+		if success then
+			print("[✅] Đã nhận nhiệm vụ Bandit")
+		else
+			print("[❌] Nhận nhiệm vụ lỗi: ", err)
+		end
+	end
+end
+
+function autoFarm()
+	while farming do
+		local player = game.Players.LocalPlayer
+		local char = player.Character
+
+		if not char or not char:FindFirstChild("HumanoidRootPart") then
+			wait(1)
+			continue
+		end
+
+		-- Nhận nhiệm vụ
+		getBanditQuest()
+
+		-- Tạo block chống rớt nếu chưa có
+		if not workspace:FindFirstChild("AntiFallBlock") then
+			createAntiFallBlock()
+		end
+
+		-- Tìm target
+		if not targetEnemy or not targetEnemy:FindFirstChild("Humanoid") or targetEnemy.Humanoid.Health <= 0 then
+			for _, v in pairs(workspace.Enemies:GetChildren()) do
+				if string.match(v.Name, "Bandit") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+					targetEnemy = v
+					print("[🎯] Tìm thấy Bandit target:", v.Name)
+					break
+				end
+			end
+		end
+
+		-- Nếu có quái
+		if targetEnemy and targetEnemy:FindFirstChild("HumanoidRootPart") and targetEnemy.Humanoid.Health > 0 then
+			pullAllBandits(targetEnemy.HumanoidRootPart.Position)
+
+			-- Dịch sang phía sau
+			local behind = CFrame.new(0, 3, -4)
+			char.HumanoidRootPart.CFrame = targetEnemy.HumanoidRootPart.CFrame * behind
+
+			-- Đánh
+			game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 0)
+			wait(0.05)
+			game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 0)
+		else
+			print("[⏳] Đang tìm Bandit mới...")
+		end
+
+		wait(0.1)
+	end
+end
+
+toggle.MouseButton1Click:Connect(function()
+	farming = not farming
+	toggle.Text = "Auto Farm: " .. (farming and "ON" or "OFF")
+
+	if farming then
+		print("[🔥] Auto Farm đang bật!")
+		coroutine.wrap(autoFarm)()
+	else
+		print("[🛑] Tắt Auto Farm")
+		for _, v in pairs(workspace.Enemies:GetChildren()) do
+			if string.match(v.Name, "Bandit") and v:FindFirstChild("HumanoidRootPart") then
+				v.HumanoidRootPart.Anchored = false
+			end
+		end
+		if workspace:FindFirstChild("AntiFallBlock") then
+			workspace.AntiFallBlock:Destroy()
+		end
+		targetEnemy = nil
+	end
+end)
