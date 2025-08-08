@@ -1,3 +1,4 @@
+repeat task.wait() until game:IsLoaded()
 getgenv().BF_LevelFarm = {
 	[1] = {Quest="BanditQuest1",Mob="Bandit",Pos=Vector3.new(1060,17,1547),QuestPos=Vector3.new(1060,17,1545)},
 	[10] = {Quest="JungleQuest",Mob="Monkey",Pos=Vector3.new(-1602,36,153),QuestPos=Vector3.new(-1602,36,155)},
