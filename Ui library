@@ -1,0 +1,635 @@
+--[[
+
+	Roblibwaita: A Roblox User Interface Library.
+	By Blukez
+	
+	Contributions:
+	RealPacket | refactoring
+
+	This UI Library is VERY heavily inspired by the GNOME project (https://gnome.org).
+	pls dont sue me
+
+]]--
+
+local rolibwaita = {}
+
+-- \\ Variables // --
+local Assets = game:GetObjects("rbxassetid://18397627650")[1]
+
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer.PlayerGui
+local CoreGui = gethui() or game:GetService("CoreGui")
+local Mouse = LocalPlayer:GetMouse()
+
+local Examples = Assets.Examples
+local Gui = Assets.GUI
+
+local TweenPresets = {
+	Fast = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+	Medium = TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+	Slow = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+}
+
+-- \\ Typings // --
+
+type WindowOptions = {
+	Name: string,
+	Keybind: string
+}
+
+type TabOptions = {
+	Name: string,
+	Image: string
+}
+
+type SectionOptions = {
+	Name: string,
+	Description: string
+}
+
+-- \\ Functions // --
+
+local function createTween(instance: Instance, tweenInfo: TweenInfo, properties: {[string]: any})
+	local tween = TweenService:Create(instance, tweenInfo, properties)
+	tween:Play()
+	return tween
+end
+
+-- \\ Main // --
+
+function rolibwaita:NewWindow(WindowOptions: WindowOptions)
+	local TabTable = {}
+	local guiClone = Gui:Clone()
+	local mainFrame = guiClone.Main
+	local mainCover = mainFrame.Cover
+	local sideBar = mainFrame.SideBar
+	local tabButtons = sideBar.Items
+	local titleBar = sideBar.TitleBar
+	local title = titleBar.Title
+	local searchBar = titleBar.SearchBar
+	local searchQuery = searchBar.TextBox
+	local topbar = mainFrame.Topbar
+	local tabTitle = topbar.TabTitle
+	local searchButton = topbar.Search
+	local closeButton = topbar.Close
+	local tabs = mainFrame.Tabs
+	local cover = tabs.Cover
+	local resizeCorner = mainFrame.ResizeCorner
+	local resizeHitbox = resizeCorner.Hitbox
+
+	local startMouse, startSize
+	local resizing = false
+	local guiHidden = false
+
+	if WindowOptions.Name == nil then
+		error("Required setting 'Name' not given")
+	end
+
+	if WindowOptions.Keybind == nil then
+		error("Required setting 'Keybind' not given")
+	end
+
+	if WindowOptions.PrintCredits then
+		print("Roblibwaita: Roblox User Interface Library.")
+		print("Created By Blukez, Inspired By GNOME.")
+		print("Contributions:")
+		print("RealPacket | refactoring")
+	end
+
+	title.Text = WindowOptions.Name
+
+	mainFrame.ClipsDescendants = true
+	mainFrame.BackgroundTransparency = 1
+	resizeHitbox.BackgroundTransparency = 1
+	tabTitle.TextTransparency = 1
+	closeButton.BackgroundTransparency = 1
+	closeButton.Icon.ImageTransparency = 1
+	searchButton.Icon.ImageTransparency = 1
+	sideBar.Position = UDim2.new(0, -195, 0.5, 0)
+	mainFrame.Size = UDim2.new(0, 80, 0, 50)
+
+	if WindowOptions.UseCoreGui then
+		guiClone.Parent = CoreGui
+	else
+		guiClone.Parent = PlayerGui
+	end
+
+	guiClone.Enabled = true
+
+	createTween(mainFrame, TweenPresets.Slow, { Size = UDim2.new(0, 717, 0, 442) })
+	task.wait(0.1)
+	createTween(mainFrame, TweenPresets.Slow, { BackgroundTransparency = 0 })
+	task.wait(0.6)
+	createTween(sideBar, TweenPresets.Slow, { Position = UDim2.new(0, 0, 0.5, 0) })
+	task.wait(0.5)
+	createTween(tabTitle, TweenPresets.Medium, { TextTransparency = 0 })
+	createTween(closeButton, TweenPresets.Medium, { BackgroundTransparency = 0 })
+	createTween(closeButton.Icon, TweenPresets.Medium, { ImageTransparency = 0 })
+	createTween(searchButton.Icon, TweenPresets.Medium, { ImageTransparency = 0 })
+	createTween(resizeHitbox, TweenPresets.Medium, { BackgroundTransparency = 0.95 })
+
+	mainFrame.AnchorPoint = Vector2.new(0, 0)
+	mainFrame.Position = UDim2.new(0.5, -358, 0.5, -221)
+
+	local mouseIcon = Instance.new("ImageLabel")
+	mouseIcon.Parent = guiClone
+	mouseIcon.BackgroundTransparency = 1
+	mouseIcon.ImageTransparency = 1
+	mouseIcon.Size = UDim2.new(0, 20, 0, 20)
+	mouseIcon.Rotation = -90
+
+	-- drag
+
+	local dragToggle, dragStart, startPos
+	local dragSpeed = 0.21
+
+	local function updateInput(input)
+		local delta = input.Position - dragStart
+		local position =
+			UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		game:GetService("TweenService"):Create(mainFrame, TweenInfo.new(dragSpeed), { Position = position }):Play()
+	end
+
+	topbar.InputBegan:Connect(function(input)
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = mainFrame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragToggle = false
+				end
+			end)
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if
+			input.UserInputType == Enum.UserInputType.MouseMovement
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			if dragToggle then
+				updateInput(input)
+			end
+		end
+	end)
+
+	--resize
+
+	resizeHitbox.MouseEnter:Connect(function()
+		UIS.MouseIconEnabled = false
+		mouseIcon.Image = "rbxassetid://18593863892"
+		mouseIcon.ImageTransparency = 0
+	end)
+
+	resizeHitbox.MouseLeave:Connect(function()
+		if resizing == false then
+			UIS.MouseIconEnabled = true
+			mouseIcon.ImageTransparency = 1
+		end
+	end)
+
+	resizeHitbox.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			resizing = true
+			startSize = mainFrame.AbsoluteSize
+			startMouse = Vector2.new(Mouse.X, Mouse.Y)
+		end
+	end)
+
+	resizeHitbox.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			resizing = false
+			UIS.MouseIconEnabled = true
+			mouseIcon.ImageTransparency = 1
+		end
+	end)
+
+	game:GetService("RunService").RenderStepped:Connect(function()
+		mouseIcon.Position = UDim2.fromOffset(Mouse.X, Mouse.Y)
+		if resizing == true then
+			local m = Vector2.new(Mouse.X, Mouse.Y)
+			local mouseMoved = Vector2.new(m.X - startMouse.X, m.Y - startMouse.Y)
+
+			local s = startSize + mouseMoved
+			local sx = math.max(650, s.X)
+			local sy = math.max(300, s.Y)
+
+			createTween(mainFrame, TweenPresets.Fast, { Size = UDim2.fromOffset(sx, sy) })
+		end
+	end)
+
+	-- hide
+
+	local lastSize = mainFrame.Size
+	local function hideGUI()
+		guiHidden = true
+		mainCover.Visible = true
+		lastSize = mainFrame.Size
+		mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+		mainFrame.Position += UDim2.new(0, mainFrame.Size.X.Offset / 2, 0, mainFrame.Size.Y.Offset / 2)
+
+		createTween(mainCover, TweenPresets.Fast, { BackgroundTransparency = 0 })
+		task.wait(0.3)
+		resizeCorner.Visible = false
+		sideBar.Visible = false
+		tabs.Visible = false
+		topbar.Visible = false
+		createTween(mainCover, TweenPresets.Medium, { BackgroundTransparency = 1 })
+		createTween(mainFrame, TweenPresets.Medium, { BackgroundTransparency = 1 })
+		task.wait(0.1)
+		createTween(mainFrame, TweenPresets.Slow, { Size = UDim2.new(0, 80, 0, 50) })
+		task.wait(0.5)
+		mainFrame.Visible = false
+	end
+
+	local function unHideGUI()
+		guiHidden = false
+		mainFrame.Visible = true
+
+		createTween(mainFrame, TweenPresets.Slow, { Size = lastSize })
+		task.wait(0.1)
+		createTween(mainFrame, TweenPresets.Medium, { BackgroundTransparency = 0 })
+		createTween(mainCover, TweenPresets.Medium, { BackgroundTransparency = 0 })
+		task.wait(0.5)
+		resizeCorner.Visible = true
+		sideBar.Visible = true
+		tabs.Visible = true
+		topbar.Visible = true
+		createTween(mainCover, TweenPresets.Fast, { BackgroundTransparency = 1 })
+		task.wait(0.3)
+
+		mainFrame.AnchorPoint = Vector2.new(0, 0)
+		mainFrame.Position -= UDim2.new(0, mainFrame.Size.X.Offset / 2, 0, mainFrame.Size.Y.Offset / 2)
+		mainCover.Visible = false
+	end
+
+	UIS.InputBegan:Connect(function(Input, IsTyping)
+		if IsTyping then
+			return
+		end
+		if Input.KeyCode == Enum.KeyCode[WindowOptions.Keybind] then
+			if guiHidden == true then
+				unHideGUI()
+			else
+				hideGUI()
+			end
+		end
+	end)
+
+	closeButton.Hitbox.MouseEnter:Connect(function()
+		createTween(closeButton, TweenPresets.Fast, { BackgroundColor3 = Color3.fromRGB(60, 60, 60) })
+	end)
+
+	closeButton.Hitbox.MouseLeave:Connect(function()
+		createTween(closeButton, TweenPresets.Fast, { BackgroundColor3 = Color3.fromRGB(50, 50, 50) })
+	end)
+
+	closeButton.Hitbox.MouseButton1Down:Connect(function()
+		createTween(closeButton, TweenPresets.Fast, { BackgroundColor3 = Color3.fromRGB(69, 69, 69) })
+	end)
+
+	local openandclosenotificationthingshown = false
+	closeButton.Hitbox.MouseButton1Up:Connect(function()
+		createTween(closeButton, TweenPresets.Fast, { BackgroundColor3 = Color3.fromRGB(60, 60, 60) })
+		task.wait(0.2)
+		hideGUI()
+		if openandclosenotificationthingshown == false then
+			openandclosenotificationthingshown = true
+			game:GetService("StarterGui"):SetCore("SendNotification", {
+				Title = "Notification",
+				Text = "Press " .. WindowOptions.Keybind .. " to reopen UI.",
+			})
+		end
+	end)
+
+	local firstTab = true
+	local window = {}
+	function window:NewTab(TabOptions: TabOptions) -- tab
+		local tabClone = Examples.Tab:Clone()
+		local tabButtonClone = Examples.TabButton:Clone()
+		local tabName = TabOptions.Name
+
+		tabClone.Visible = firstTab
+		table.insert(TabTable, { Name = tabName, Displayed = firstTab })
+		if firstTab then
+			tabTitle.Text = tabName
+			firstTab = false
+		end
+
+		if TabOptions.Name == nil then
+			error("Required setting 'Name' not given")
+		end
+
+		if TabOptions.Icon ~= nil then
+			tabButtonClone.Icon.Image = TabOptions.Icon
+		else
+			tabButtonClone.Icon.Visible = false
+			tabButtonClone.Title.Position = UDim2.new(0.45, 0, 0.5, 0)
+		end
+
+		tabClone.Name = tabName
+		tabButtonClone.Title.Text = tabName
+		tabButtonClone.Name = tabName
+		tabClone.Parent = tabs
+
+		tabButtonClone.Icon.ImageTransparency = 1
+		tabButtonClone.Title.TextTransparency = 1
+		tabButtonClone.Parent = tabButtons
+
+		createTween(tabButtonClone.Icon, TweenPresets.Medium, { ImageTransparency = 0 })
+		createTween(tabButtonClone.Title, TweenPresets.Medium, { TextTransparency = 0 })
+
+		tabButtonClone.Hitbox.MouseEnter:Connect(function()
+			createTween(tabButtonClone, TweenPresets.Fast, { BackgroundTransparency = 0.9 })
+		end)
+		tabButtonClone.Hitbox.MouseLeave:Connect(function()
+			createTween(tabButtonClone, TweenPresets.Fast, { BackgroundTransparency = 1 })
+		end)
+		tabButtonClone.Hitbox.MouseButton1Down:Connect(function()
+			createTween(tabButtonClone, TweenPresets.Fast, { BackgroundTransparency = 0.85 })
+		end)
+		tabButtonClone.Hitbox.MouseButton1Up:Connect(function()
+			createTween(tabButtonClone, TweenPresets.Fast, { BackgroundTransparency = 0.9 })
+
+			if not tabClone.Visible then
+				for _, v in pairs(TabTable) do
+					if v.Displayed and v.Name ~= tabName then
+						v.Displayed = false
+						task.spawn(function()
+							task.wait(0.3)
+							tabs[v.Name].Visible = false
+						end)
+					elseif v.Name == tabName then
+						v.Displayed = true
+					end
+				end
+
+				tabTitle.Text = tabName
+				createTween(
+					cover,
+					TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+					{ BackgroundTransparency = 0 }
+				)
+				task.wait(0.3)
+				tabClone.Visible = true
+				createTween(
+					cover,
+					TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+					{ BackgroundTransparency = 1 }
+				)
+			end
+		end)
+
+		-- search bar
+		local searchBarOpen = false
+
+		searchButton.Hitbox.MouseEnter:Connect(function()
+			createTween(searchButton, TweenPresets.Fast, { BackgroundTransparency = 0.92 })
+		end)
+
+		searchButton.Hitbox.MouseLeave:Connect(function()
+			createTween(searchButton, TweenPresets.Fast, { BackgroundTransparency = 1 })
+		end)
+
+		searchButton.Hitbox.MouseButton1Down:Connect(function()
+			createTween(searchButton, TweenPresets.Fast, { BackgroundTransparency = 0.85 })
+		end)
+
+		searchButton.Hitbox.MouseButton1Up:Connect(function()
+			if searchBarOpen == false then
+				searchBarOpen = true
+				searchBar.Visible = true
+				searchQuery.Visible = true
+				createTween(searchButton, TweenPresets.Fast, { BackgroundTransparency = 0.92 })
+				createTween(searchButton.Icon, TweenPresets.Fast, { ImageTransparency = 1 })
+				createTween(searchBar, TweenPresets.Fast, { BackgroundTransparency = 0 })
+				createTween(searchBar.TextBox, TweenPresets.Fast, { TextTransparency = 0 })
+				createTween(searchButton.Icon1, TweenPresets.Fast, { ImageTransparency = 0 })
+				searchQuery:CaptureFocus()
+			end
+		end)
+
+		searchQuery.FocusLost:Connect(function()
+			local InputText = string.lower(searchQuery.Text)
+			local noResultsFound = false
+
+			if searchQuery.Text == "" then
+				createTween(searchButton.Icon, TweenPresets.Fast, { ImageTransparency = 0 })
+				createTween(searchBar, TweenPresets.Fast, { BackgroundTransparency = 1 })
+				createTween(searchBar.TextBox, TweenPresets.Fast, { TextTransparency = 1 })
+				createTween(searchButton.Icon1, TweenPresets.Fast, { ImageTransparency = 1 })
+				task.wait(0.3)
+				searchQuery.Text = ""
+				searchBar.Visible = false
+				searchQuery.Visible = false
+				searchBarOpen = false
+				return
+			end
+
+			for _, v in pairs(tabClone:GetDescendants()) do
+				if v:IsA("Frame") and v.Parent.Parent:IsA("ScrollingFrame") then
+					if string.find(string.lower(v.Name), InputText) then
+						task.spawn(function()
+							createTween(searchButton.Icon, TweenPresets.Fast, { ImageTransparency = 0 })
+							createTween(searchBar, TweenPresets.Fast, { BackgroundTransparency = 1 })
+							createTween(searchBar.TextBox, TweenPresets.Fast, { TextTransparency = 1 })
+							createTween(searchButton.Icon1, TweenPresets.Fast, { ImageTransparency = 1 })
+							task.wait(0.3)
+							searchQuery.Text = ""
+							searchBar.Visible = false
+							searchQuery.Visible = false
+							searchBarOpen = false
+						end)
+
+						local searchScrollTo = 0
+						for _, b in pairs(v.Parent.Parent:GetChildren()) do
+							if b:IsA("Frame") and v.Parent.LayoutOrder > b.LayoutOrder then
+								searchScrollTo += b.AbsoluteSize.Y
+							end
+						end
+						for _, b in pairs(v.Parent:GetChildren()) do
+							if b:IsA("Frame") and v.LayoutOrder > b.LayoutOrder then
+								searchScrollTo += b.AbsoluteSize.Y
+							end
+						end
+						print(searchScrollTo)
+						createTween(
+							v.Parent.Parent,
+							TweenPresets.Fast,
+							{ CanvasPosition = Vector2.new(0, searchScrollTo + 50) }
+						)
+						task.wait(0.1)
+						createTween(v, TweenPresets.Fast, { BackgroundColor3 = Color3.fromRGB(75, 75, 75) })
+						task.wait(0.3)
+						createTween(v, TweenPresets.Fast, { BackgroundColor3 = Color3.fromRGB(54, 54, 54) })
+						return
+					end
+					noResultsFound = true
+				end
+			end
+			if noResultsFound == true then
+				noResultsFound = false
+				searchQuery.Text = ""
+				createTween(
+					searchButton.Icon1,
+					TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+					{ Position = UDim2.new(0.8, 0, 0.5, 0) }
+				)
+				task.wait(0.07)
+				createTween(
+					searchButton.Icon1,
+					TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+					{ Position = UDim2.new(0.2, 0, 0.5, 0) }
+				)
+				task.wait(0.07)
+				createTween(
+					searchButton.Icon1,
+					TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+					{ Position = UDim2.new(0.5, 0, 0.5, 0) }
+				)
+				searchQuery:CaptureFocus()
+			end
+		end)
+
+		local tabFuncs = {}
+
+		local sectionOrder = 0
+		function tabFuncs:NewSection(SectionOptions: SectionOptions) -- section
+			local sectionClone = Examples.Section:Clone()
+			local order = 0
+
+			sectionClone.LayoutOrder = sectionOrder
+			sectionOrder += 1
+
+			sectionClone.Name = SectionOptions.Name
+			sectionClone.Title.Text = SectionOptions.Name
+
+			sectionClone.Title.TextTransparency = 1
+			sectionClone.Description.TextTransparency = 1
+			sectionClone.Parent = tabClone
+
+			createTween(sectionClone.Title, TweenPresets.Medium, { TextTransparency = 0 })
+			createTween(sectionClone.Description, TweenPresets.Medium, { TextTransparency = 0 })
+
+			local function handleNilDesc(obj, Options: SectionOptions)
+				if Options.Description == nil then
+					obj.Description:Destroy()
+					obj.Title.Position = UDim2.new(0, 12, 0.5, 0)
+					return false
+				else
+					obj.Description.Text = Options.Description
+					obj.Description.TextTransparency = 1
+					createTween(obj.Description, TweenPresets.Medium, { TextTransparency = 0 })
+					return true
+				end
+			end
+
+			handleNilDesc(sectionClone, SectionOptions)
+
+			local laterElementsExists = false
+			local middleElemntsExists = false
+			local ealierElementsExists = false
+			local function updateElementsExistance()
+				laterElementsExists = false
+				middleElemntsExists = false
+				ealierElementsExists = false
+				for _, v in pairs(sectionClone:GetChildren()) do
+					if v:IsA("Frame") then
+						if v.LayoutOrder > 0 then
+							laterElementsExists = true
+						end
+
+						if order > 2 then
+							middleElemntsExists = true
+						end
+
+						if v.LayoutOrder < order - 1 then
+							ealierElementsExists = true
+						end
+					end
+				end
+			end
+
+			local function handleCornerRadius(obj)
+				obj.LayoutOrder = order
+				order += 1
+
+				updateElementsExistance()
+
+				if laterElementsExists == true then -- 2 or more elements exists in section
+					for _, v in pairs(sectionClone:GetChildren()) do
+						if v:IsA("Frame") and v.LayoutOrder == order - 2 then
+							task.spawn(function()
+								createTween(v.UICorner, TweenPresets.Slow, { CornerRadius = UDim.new(0, 3) })
+								task.wait(0.1)
+								createTween(v.CornerCover, TweenPresets.Medium, { BackgroundTransparency = 1 })
+								task.wait(0.5)
+								v.CornerCover:Destroy()
+							end)
+						end
+					end
+
+					local cornerCover = Examples.CornerCover:Clone()
+					cornerCover.BackgroundTransparency = 1
+					cornerCover.Parent = obj
+					cornerCover.Position = UDim2.new(0.5, 0, 0.5, -12)
+					task.spawn(function()
+						task.wait(0.1)
+						createTween(cornerCover, TweenPresets.Medium, { BackgroundTransparency = 0 })
+					end)
+					obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+						cornerCover.BackgroundColor3 = obj.BackgroundColor3
+					end)
+				elseif ealierElementsExists == true then -- 1 element exists, 2 elements will now exist
+					for _, v in pairs(sectionClone:GetChildren()) do
+						if v:IsA("Frame") and v.LayoutOrder == 0 then
+							local cornerCover = Examples.CornerCover:Clone()
+							cornerCover.BackgroundTransparency = 1
+							cornerCover.Parent = v
+							cornerCover.Position = UDim2.new(0.5, 0, 0.5, 12)
+							task.spawn(function()
+								task.wait(0.1)
+								createTween(cornerCover, TweenPresets.Medium, { BackgroundTransparency = 0 })
+							end)
+							v:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+								cornerCover.BackgroundColor3 = v.BackgroundColor3
+							end)
+						end
+					end
+
+					local cornerCover = Examples.CornerCover:Clone()
+					cornerCover.BackgroundTransparency = 1
+					cornerCover.Parent = obj
+					cornerCover.Position = UDim2.new(0.5, 0, 0.5, -12)
+					task.spawn(function()
+						task.wait(0.1)
+						createTween(cornerCover, TweenPresets.Medium, { BackgroundTransparency = 0 })
+					end)
+					obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+						cornerCover.BackgroundColor3 = obj.BackgroundColor3
+					end)
+				end
+			end
+
+			local function OnMainElementRemove(obj)
+				local deletedOrder = obj.LayoutOrder
+				order -= 1
+
+				for _, v in pairs(sectionClone:GetChildren()) do
+					if v:IsA("Frame") and v ~= obj then
+						if deletedOrder == 0 then -- deleted thing is the first one
+							v.LayoutOrder -= 1
+							if middleElemntsExists == true and v.LayoutOrder == 0 then
+								local cornerCover = Examples.CornerCover:Clone()
+								cornerCover.BackgroundTransparency = 1
+								cornerCover.Parent = v
+								cornerCover.Position = UDim2.new(0.5, 0, 0.5, 12)
+								createTween(v.UICorner, TweenPresets.Medium, { CornerRadius = UDim.new(0, 12) })
+								createTween(cornerCover, TweenPreset
