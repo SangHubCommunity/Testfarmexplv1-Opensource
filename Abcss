@@ -2884,3 +2884,104 @@ doingQuest = true
 -- ... đoạn code nhận nhiệm vụ
 task.wait(1) -- đợi hoàn tất nhận nhiệm vụ
 doingQuest = false
+-- Phần 67: Hàm Auto Equip vũ khí với ưu tiên võ (Style > Sword > Combat)
+local function EquipBestWeapon()
+    local priority = {"Style", "Sword", "Combat"}
+    local backpack = plr.Backpack:GetChildren()
+    for _, type in ipairs(priority) do
+        for _, item in ipairs(backpack) do
+            if item:IsA("Tool") and string.find(item.Name, type) then
+                plr.Character.Humanoid:EquipTool(item)
+                return
+            end
+        end
+    end
+end
+
+-- Gọi hàm Auto Equip nếu bật
+if autoEquip then
+    EquipBestWeapon()
+end
+-- PHẦN 69 - Auto Equip Vũ Khí (Cập nhật cuối cùng)
+if autoEquip then
+    local function EquipBestWeapon()
+        local inv = plr.Backpack:GetChildren()
+        for _, item in ipairs(inv) do
+            if item:IsA("Tool") and (string.find(item.Name, "Style") or string.find(item.Name, "Sword") or string.find(item.Name, "Combat")) then
+                plr.Character.Humanoid:EquipTool(item)
+                break
+            end
+        end
+    end
+    EquipBestWeapon()
+end
+
+-- PHẦN 70 - Gắn Block Ảo Dưới Chân Khi Tween
+function CreatePlatformUnderPlayer()
+    if not workspace:FindFirstChild("BFAutoBlock") then
+        local part = Instance.new("Part", workspace)
+        part.Size = Vector3.new(15,1,15)
+        part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+        part.Anchored = true
+        part.Transparency = 1
+        part.CanCollide = true
+        part.Name = "BFAutoBlock"
+    else
+        workspace.BFAutoBlock.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+    end
+end
+
+-- PHẦN 71 - Hệ Thống Farm Theo Level Tự Động Đảo Sea 1 (rút gọn)
+BF_QuestData = {
+    [1] = { Level = 1,  Name = "Bandit",        Quest = "BanditQuest1",  Mon = "Bandit",      Pos = Vector3.new(1060,16,1560) },
+    [2] = { Level = 10, Name = "Monkey",        Quest = "JungleQuest",   Mon = "Monkey",      Pos = Vector3.new(-1600, 36, 145) },
+    [3] = { Level = 30, Name = "Pirate",        Quest = "BuggyQuest1",   Mon = "Pirate",      Pos = Vector3.new(-1140, 14, 3850) },
+    -- Bạn có thể thêm tiếp theo mẫu trên đến cấp 700
+}
+
+-- PHẦN 72 - Tự Động Chọn Đảo Và Nhiệm Vụ
+function GetQuestByLevel(lv)
+    local currentQuest = nil
+    for i = #BF_QuestData, 1, -1 do
+        if lv >= BF_QuestData[i].Level then
+            currentQuest = BF_QuestData[i]
+            break
+        end
+    end
+    return currentQuest
+end
+
+-- PHẦN 73 - Ghép Farm + Auto Quest Theo Level
+task.spawn(function()
+    while task.wait(1) do
+        if autoFarm then
+            local lv = plr.Data.Level.Value
+            local quest = GetQuestByLevel(lv)
+            if quest then
+                -- Gọi hàm tween đến đảo và tạo block ảo
+                CreatePlatformUnderPlayer()
+                -- Auto nhận quest, auto click, farm logic tiếp theo...
+            end
+        end
+    end
+end)
+
+-- PHẦN 74 - Dọn Block Khi Tắt Farm
+task.spawn(function()
+    while true do task.wait(1)
+        if not autoFarm and workspace:FindFirstChild("BFAutoBlock") then
+            workspace.BFAutoBlock:Destroy()
+        end
+    end
+end)
+
+-- PHẦN 75 - Giao Diện Kết Thúc Hoặc Thông Báo Welcome
+local function WelcomeNote()
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Cảm ơn bạn đã dùng Sang Hub!",
+        Text = "Welcome To Sang Hub ❤️",
+        Duration = 8
+    })
+end
+
+WelcomeNote()
