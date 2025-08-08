@@ -1,0 +1,216 @@
+repeat task.wait() until game:IsLoaded()
+if game.CoreGui:FindFirstChild("BFAuto") then game.CoreGui.BFAuto:Destroy() end
+
+local plr = game.Players.LocalPlayer
+local vim = game:GetService("VirtualInputManager")
+local ts = game:GetService("TweenService")
+
+-- GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "BFAuto"
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 220, 0, 230)
+frame.Position = UDim2.new(0.05, 0, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+-- Tạo button nhanh
+local function CreateButton(text, posY)
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(1, -20, 0, 30)
+	btn.Position = UDim2.new(0, 10, 0, posY)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 14
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+	return btn
+end
+
+-- Nút
+local btnFarm = CreateButton("Auto Farm: OFF", 10)
+local btnMode = CreateButton("Vũ khí: Melee", 50)
+local btnESP = CreateButton("ESP Player: OFF", 90)
+local btnFruit = CreateButton("ESP Fruit: OFF", 130)
+local btnAutoFruit = CreateButton("Auto Collect Fruit: OFF", 170)
+
+-- Trạng thái
+local autoFarm, useMelee = false, true
+local espOn, fruitEspOn, autoFruit = false, false, false
+
+-- Xử lý nút
+btnFarm.MouseButton1Click:Connect(function()
+	autoFarm = not autoFarm
+	btnFarm.Text = autoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
+end)
+
+btnMode.MouseButton1Click:Connect(function()
+	useMelee = not useMelee
+	btnMode.Text = useMelee and "Vũ khí: Melee" or "Vũ khí: Sword"
+end)
+
+btnESP.MouseButton1Click:Connect(function()
+	espOn = not espOn
+	btnESP.Text = espOn and "ESP Player: ON" or "ESP Player: OFF"
+end)
+
+btnFruit.MouseButton1Click:Connect(function()
+	fruitEspOn = not fruitEspOn
+	btnFruit.Text = fruitEspOn and "ESP Fruit: ON" or "ESP Fruit: OFF"
+end)
+
+btnAutoFruit.MouseButton1Click:Connect(function()
+	autoFruit = not autoFruit
+	btnAutoFruit.Text = autoFruit and "Auto Collect Fruit: ON" or "Auto Collect Fruit: OFF"
+end)
+-- Danh sách vũ khí
+local meleeList = {
+    "Combat","Black Leg","Electro","Fishman Karate","Dragon Breath","Superhuman",
+    "Electric Claw","Sharkman Karate","Death Step","Dragon Talon","Godhuman"
+}
+
+local swordList = {
+    "Katana","Cutlass","Iron Mace","Triple Katana","Dual Katana","Shisui","Saber",
+    "Yama","Wando","Rengoku","Dark Blade","Buddy Sword","Cursed Dual Katana"
+}
+
+-- Level Farm Data - Full Sea 1 (một vài ví dụ)
+getgenv().BF_LevelFarm = {
+    [1] = {Quest="BanditQuest1",Mob="Bandit",Pos=Vector3.new(1060,17,1547),QuestPos=Vector3.new(1060,17,1545)},
+    [10] = {Quest="JungleQuest",Mob="Monkey",Pos=Vector3.new(-1602,36,153),QuestPos=Vector3.new(-1602,36,155)},
+    [15] = {Quest="JungleQuest",Mob="Gorilla",Pos=Vector3.new(-1234, 6, -479),QuestPos=Vector3.new(-1602,36,155)},
+    [30] = {Quest="BuggyQuest1",Mob="Pirate",Pos=Vector3.new(-1145, 4, 3820),QuestPos=Vector3.new(-1145, 4, 3822)},
+    -- ... thêm toàn bộ Sea 1 tại đây
+}
+-- Tăng hitbox + cho quái đứng im
+local function BuffMob(mob)
+	if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
+	for _,v in ipairs(mob:GetChildren()) do
+		if v:IsA("BasePart") then
+			v.Size = Vector3.new(60, 60, 60)
+			v.Transparency = 0.2
+			v.Anchored = true
+			v.CanCollide = false
+		end
+	end
+end
+
+-- Farm loop
+task.spawn(function()
+	local lastMob = nil
+	local farming = false
+	while task.wait(0.2) do
+		if autoFarm then
+			local data = GetTarget()
+			if not data then continue end
+
+			local char = plr.Character
+			local hrp = char and char:FindFirstChild("HumanoidRootPart")
+			if not hrp then continue end
+
+			if not plr.PlayerGui:FindFirstChild("Main") or not plr.PlayerGui.Main:FindFirstChild("Quest") or not plr.PlayerGui.Main.Quest.Visible then
+				-- Bay tới đảo & tạo block
+				TweenTo(data.Pos)
+				task.wait(3)
+
+				-- Nhận quest
+				TweenTo(data.QuestPos)
+				game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", data.Quest, 1)
+				task.wait(1)
+			end
+
+			for _,mob in pairs(workspace.Enemies:GetChildren()) do
+				if mob.Name == data.Mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+					BuffMob(mob)
+					local root = mob.HumanoidRootPart
+					local high = root.Position + Vector3.new(0, 10, 0)
+
+					-- Đánh liên tục trên đầu quái
+					repeat
+						TweenTo(high + Vector3.new(0,2,0))
+						MakePlat(high)
+						EquipWeapon()
+						EnableHaki()
+						hrp.Anchored = true
+						Click()
+						task.wait(0.15)
+					until not autoFarm or mob.Humanoid.Health <= 0 or not mob:FindFirstChild("HumanoidRootPart")
+					
+					hrp.Anchored = false
+					break
+				end
+			end
+		else
+			if workspace:FindFirstChild("BFPlat") then workspace.BFPlat:Destroy() end
+		end
+	end
+end)
+--[[ AUTO FARM BLOX FRUITS - FULL SEA 1 + HAKI + ESP + AUTO COLLECT FRUIT + GUI TOGGLE ]]
+
+repeat task.wait() until game:IsLoaded() if game.CoreGui:FindFirstChild("BFAuto") then game.CoreGui.BFAuto:Destroy() end
+
+local plr = game.Players.LocalPlayer local rs = game:GetService("RunService") local ts = game:GetService("TweenService") local vim = game:GetService("VirtualInputManager") local rep = game:GetService("ReplicatedStorage")
+
+-- GUI TOGGLE local mainGui = Instance.new("ScreenGui", game.CoreGui) mainGui.Name = "BFAuto"
+
+local toggleBtn = Instance.new("TextButton", mainGui) toggleBtn.Size = UDim2.new(0, 100, 0, 30) toggleBtn.Position = UDim2.new(0, 10, 0.85, 0) toggleBtn.Text = "Toggle GUI" toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) toggleBtn.TextColor3 = Color3.new(1, 1, 1) toggleBtn.Font = Enum.Font.GothamBold toggleBtn.TextSize = 14 Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
+
+local gui = Instance.new("Frame", mainGui) gui.Size = UDim2.new(0, 220, 0, 220) gui.Position = UDim2.new(0.05, 0, 0.2, 0) gui.BackgroundColor3 = Color3.fromRGB(35, 35, 35) gui.BorderSizePixel = 0 gui.Active = true gui.Draggable = true Instance.new("UICorner", gui).CornerRadius = UDim.new(0, 10)
+
+toggleBtn.MouseButton1Click:Connect(function() gui.Visible = not gui.Visible end)
+
+-- UI Buttons local function CreateButton(text, posY) local btn = Instance.new("TextButton", gui) btn.Size = UDim2.new(1, -20, 0, 30) btn.Position = UDim2.new(0, 10, 0, posY) btn.Text = text btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200) btn.TextColor3 = Color3.new(1, 1, 1) btn.Font = Enum.Font.Gotham btn.TextSize = 14 Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8) return btn end
+
+local btnFarm = CreateButton("Auto Farm: OFF", 10) local btnESP = CreateButton("ESP Người Chơi: OFF", 50) local btnFruitESP = CreateButton("ESP Trái: OFF", 90) local btnCollect = CreateButton("Auto Collect Trái: OFF", 130)
+
+local autoFarm, espOn, fruitESPOn, autoCollect = false, false, false, false
+
+btnFarm.MouseButton1Click:Connect(function() autoFarm = not autoFarm btnFarm.Text = autoFarm and "Auto Farm: ON" or "Auto Farm: OFF" end)
+
+btnESP.MouseButton1Click:Connect(function() espOn = not espOn btnESP.Text = espOn and "ESP Người Chơi: ON" or "ESP Người Chơi: OFF" end)
+
+btnFruitESP.MouseButton1Click:Connect(function() fruitESPOn = not fruitESPOn btnFruitESP.Text = fruitESPOn and "ESP Trái: ON" or "ESP Trái: OFF" end)
+
+btnCollect.MouseButton1Click:Connect(function() autoCollect = not autoCollect btnCollect.Text = autoCollect and "Auto Collect Trái: ON" or "Auto Collect Trái: OFF" end)
+
+-- Auto Click Function local function ClickAttack() vim:SendMouseButtonEvent(0, 0, 0, true, game, 0) task.wait() vim:SendMouseButtonEvent(0, 0, 0, false, game, 0) end
+
+-- Auto Haki task.spawn(function() while true do task.wait(5) rep.Remotes.CommE:FireServer("Buso") end end)
+
+-- ESP SYSTEM local function CreateESP(part, name, color, tagName) local tag = Instance.new("BillboardGui", part) tag.Name = tagName tag.Size = UDim2.new(0, 100, 0, 40) tag.StudsOffset = Vector3.new(0, 2, 0) tag.AlwaysOnTop = true
+
+local txt = Instance.new("TextLabel", tag)
+txt.Size = UDim2.new(1, 0, 1, 0)
+txt.Text = name
+txt.TextColor3 = color
+txt.TextSize = 10
+txt.BackgroundTransparency = 1
+
+end
+
+task.spawn(function() while task.wait(1) do -- Player ESP for _, pl in pairs(game.Players:GetPlayers()) do if pl ~= plr and pl.Character and pl.Character:FindFirstChild("Head") then local head = pl.Character.Head if espOn and not head:FindFirstChild("ESP") then CreateESP(head, pl.Name, Color3.fromRGB(0,255,0), "ESP") elseif not espOn and head:FindFirstChild("ESP") then head:FindFirstChild("ESP"):Destroy() end end end
+
+-- Fruit ESP + Auto Collect
+	for _,v in pairs(workspace:GetChildren()) do
+		if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
+			if fruitESPOn and not v:FindFirstChild("FruitESP") then
+				CreateESP(v, v.Name, Color3.fromRGB(255,0,0), "FruitESP")
+			elseif not fruitESPOn and v:FindFirstChild("FruitESP") then
+				v.FruitESP:Destroy()
+			end
+			if autoCollect and (v.Position - plr.Character.HumanoidRootPart.Position).Magnitude < 50 then
+				firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
+				firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
+			end
+		end
+	end
+end
+
+end)
+
+-- CLICKING task.spawn(function() while task.wait(0.2) do if autoFarm then ClickAttack() end end end)
+
