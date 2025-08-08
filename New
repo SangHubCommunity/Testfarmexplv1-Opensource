@@ -1,3 +1,31 @@
+if not game:IsLoaded() then game.Loaded:Wait() end
+local gui = Instance.new("ScreenGui", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
+gui.Name = "SangHub"
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Visible = true
+frame.Active = true
+frame.Draggable = true
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+local toggle = Instance.new("TextButton", gui)
+toggle.Size = UDim2.new(0, 100, 0, 30)
+toggle.Position = UDim2.new(0, 10, 0, 0.05)
+toggle.Text = "Toggle GUI"
+toggle.BackgroundColor3 = Color3.fromRGB(30, 200, 30)
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 14
+
+toggle.MouseButton1Click:Connect(function()
+	frame.Visible = not frame.Visible
+end)
+-- fix
 -- PHẦN 1: ANTI-AFK & BIẾN TOÀN CỤC BỘ
 for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
 	v:Disable()
