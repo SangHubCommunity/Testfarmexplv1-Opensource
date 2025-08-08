@@ -1,18 +1,34 @@
---[[ 
-AUTO FARM BLOX FRUITS - FULL SEA 1 
-Version RAW Split Part 1: GUI Init + Button Setup
-]]
-
-repeat task.wait() until game:IsLoaded()
-if game.CoreGui:FindFirstChild("BFAuto") then game.CoreGui.BFAuto:Destroy() end
-
-local plr = game.Players.LocalPlayer
-local rs = game:GetService("RunService")
-local ts = game:GetService("TweenService")
-local vim = game:GetService("VirtualInputManager")
-local rep = game:GetService("ReplicatedStorage")
-
--- GUI TOGGLE BUTTON
+getgenv().BF_LevelFarm = {
+	[1] = {Quest="BanditQuest1",Mob="Bandit",Pos=Vector3.new(1060,17,1547),QuestPos=Vector3.new(1060,17,1545)},
+	[10] = {Quest="JungleQuest",Mob="Monkey",Pos=Vector3.new(-1602,36,153),QuestPos=Vector3.new(-1602,36,155)},
+	[15] = {Quest="JungleQuest",Mob="Gorilla",Pos=Vector3.new(-1237,6,-507),QuestPos=Vector3.new(-1602,36,155)},
+	[30] = {Quest="BuggyQuest1",Mob="Pirate",Pos=Vector3.new(-1115,14,3937),QuestPos=Vector3.new(-1141,15,3829)},
+	[40] = {Quest="BuggyQuest1",Mob="Brute",Pos=Vector3.new(-1200,15,4375),QuestPos=Vector3.new(-1141,15,3829)},
+	[55] = {Quest="BuggyQuest2",Mob="Chief Petty Officer",Pos=Vector3.new(-4971,21,4362),QuestPos=Vector3.new(-5034,29,4325)},
+	[70] = {Quest="SwordQuest",Mob="Saber Expert",Pos=Vector3.new(-1331,30,1994),QuestPos=Vector3.new(0,0,0)}, -- optional
+	[75] = {Quest="DesertQuest",Mob="Desert Bandit",Pos=Vector3.new(932,7,4484),QuestPos=Vector3.new(924,7,4410)},
+	[90] = {Quest="DesertQuest",Mob="Desert Officer",Pos=Vector3.new(1572,10,4378),QuestPos=Vector3.new(924,7,4410)},
+	[100] = {Quest="SnowQuest",Mob="Snow Bandit",Pos=Vector3.new(1347,87,-1327),QuestPos=Vector3.new(1386,87,-1297)},
+	[105] = {Quest="SnowQuest",Mob="Snowman",Pos=Vector3.new(1198,87,-1453),QuestPos=Vector3.new(1386,87,-1297)},
+	[120] = {Quest="MarineQuest",Mob="Chief Petty Officer",Pos=Vector3.new(-4971,21,4362),QuestPos=Vector3.new(-5034,29,4325)},
+	[130] = {Quest="MarineQuest2",Mob="Sky Bandit",Pos=Vector3.new(-4951,292,3813),QuestPos=Vector3.new(-4842,717,2047)},
+	[160] = {Quest="SkyQuest",Mob="Dark Master",Pos=Vector3.new(-5250,390,3860),QuestPos=Vector3.new(-4842,717,2047)},
+	[190] = {Quest="PrisonerQuest",Mob="Prisoner",Pos=Vector3.new(5110,473,474),QuestPos=Vector3.new(5305,502,474)},
+	[210] = {Quest="PrisonerQuest",Mob="Dangerous Prisoner",Pos=Vector3.new(5200,473,530),QuestPos=Vector3.new(5305,502,474)},
+	[230] = {Quest="ColosseumQuest",Mob="Toga Warrior",Pos=Vector3.new(-1813,10,-2741),QuestPos=Vector3.new(-1576,7,-2985)},
+	[250] = {Quest="ColosseumQuest",Mob="Gladiator",Pos=Vector3.new(-1270,10,-3000),QuestPos=Vector3.new(-1576,7,-2985)},
+	[275] = {Quest="MagmaQuest",Mob="Military Soldier",Pos=Vector3.new(-5464,11,8467),QuestPos=Vector3.new(-5316,12,8516)},
+	[300] = {Quest="MagmaQuest",Mob="Military Spy",Pos=Vector3.new(-5800,12,8825),QuestPos=Vector3.new(-5316,12,8516)},
+	[325] = {Quest="FishmanQuest",Mob="Fishman Warrior",Pos=Vector3.new(60871,19,1501),QuestPos=Vector3.new(61122,19,1569)},
+	[375] = {Quest="FishmanQuest",Mob="Fishman Commando",Pos=Vector3.new(61812,20,1693),QuestPos=Vector3.new(61122,19,1569)},
+	[400] = {Quest="SkyExp1Quest",Mob="God's Guard",Pos=Vector3.new(-4600,870,8350),QuestPos=Vector3.new(-4720,845,8510)},
+	[450] = {Quest="SkyExp1Quest",Mob="Shanda",Pos=Vector3.new(-4800,870,8600),QuestPos=Vector3.new(-4720,845,8510)},
+	[475] = {Quest="SkyExp2Quest",Mob="Royal Squad",Pos=Vector3.new(-7685,560,5535),QuestPos=Vector3.new(-7895,554,5540)},
+	[525] = {Quest="SkyExp2Quest",Mob="Royal Soldier",Pos=Vector3.new(-7655,560,5850),QuestPos=Vector3.new(-7895,554,5540)},
+	[550] = {Quest="FountainQuest",Mob="Galley Pirate",Pos=Vector3.new(5585,44,3936),QuestPos=Vector3.new(5255,38,4050)},
+	[625] = {Quest="FountainQuest",Mob="Galley Captain",Pos=Vector3.new(5775,42,4010),QuestPos=Vector3.new(5255,38,4050)},
+}
+-- GUI Toggle và giao diện chính
 local mainGui = Instance.new("ScreenGui", game.CoreGui)
 mainGui.Name = "BFAuto"
 
@@ -26,214 +42,25 @@ toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.TextSize = 14
 Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
 
--- GUI FRAME (BO GÓC - TO 60% MÀN)
 local gui = Instance.new("Frame", mainGui)
 gui.Size = UDim2.new(0.6, 0, 0.6, 0)
 gui.Position = UDim2.new(0.2, 0, 0.2, 0)
-gui.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+gui.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 gui.BorderSizePixel = 0
 gui.Active = true
 gui.Draggable = true
-gui.Visible = true
-Instance.new("UICorner", gui).CornerRadius = UDim.new(0, 14)
+Instance.new("UICorner", gui).CornerRadius = UDim.new(0, 12)
 
 toggleBtn.MouseButton1Click:Connect(function()
 	gui.Visible = not gui.Visible
 end)
-
--- Tạo các nút
+-- Tạo các nút trong GUI
 local function CreateButton(text, posY)
 	local btn = Instance.new("TextButton", gui)
-	btn.Size = UDim2.new(1, -20, 0, 35)
-	btn.Position = UDim2.new(0, 10, 0, posY)
-	btn.Text = text
-	btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 14
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-	return btn
-end
-
--- Các nút điều khiển
-local btnFarm = CreateButton("Auto Farm: OFF", 10)
-local btnESP = CreateButton("ESP Người Chơi: OFF", 60)
-local btnFruitESP = CreateButton("ESP Trái: OFF", 110)
-local btnCollect = CreateButton("Auto Collect Trái: OFF", 160)
-
--- Các biến trạng thái
-getgenv().AutoFarm = false
-getgenv().ESPOn = false
-getgenv().FruitESPOn = false
-getgenv().AutoCollect = false
-
-btnFarm.MouseButton1Click:Connect(function()
-	getgenv().AutoFarm = not getgenv().AutoFarm
-	btnFarm.Text = getgenv().AutoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
-end)
-
-btnESP.MouseButton1Click:Connect(function()
-	getgenv().ESPOn = not getgenv().ESPOn
-	btnESP.Text = getgenv().ESPOn and "ESP Người Chơi: ON" or "ESP Người Chơi: OFF"
-end)
-
-btnFruitESP.MouseButton1Click:Connect(function()
-	getgenv().FruitESPOn = not getgenv().FruitESPOn
-	btnFruitESP.Text = getgenv().FruitESPOn and "ESP Trái: ON" or "ESP Trái: OFF"
-end)
-
-btnCollect.MouseButton1Click:Connect(function()
-	getgenv().AutoCollect = not getgenv().AutoCollect
-	btnCollect.Text = getgenv().AutoCollect and "Auto Collect Trái: ON" or "Auto Collect Trái: OFF"
-end)
---[[ 
-AUTO FARM BLOX FRUITS - ESP + AUTO COLLECT
-Version RAW Split Part 2
-]]
-
--- Hàm tạo ESP
-local function CreateESP(part, name, color, tagName)
-	if not part:FindFirstChild(tagName) then
-		local tag = Instance.new("BillboardGui", part)
-		tag.Name = tagName
-		tag.Size = UDim2.new(0, 100, 0, 40)
-		tag.StudsOffset = Vector3.new(0, 2, 0)
-		tag.AlwaysOnTop = true
-
-		local txt = Instance.new("TextLabel", tag)
-		txt.Size = UDim2.new(1, 0, 1, 0)
-		txt.Text = name
-		txt.TextColor3 = color
-		txt.TextSize = 9
-		txt.Font = Enum.Font.Gotham
-		txt.BackgroundTransparency = 1
-	end
-end
-
-task.spawn(function()
-	while task.wait(1) do
-		-- ESP người chơi
-		for _, p in pairs(game.Players:GetPlayers()) do
-			if p ~= plr and p.Character and p.Character:FindFirstChild("Head") then
-				local head = p.Character.Head
-				if getgenv().ESPOn and not head:FindFirstChild("PlayerESP") then
-					CreateESP(head, p.Name, Color3.fromRGB(0, 255, 0), "PlayerESP")
-				elseif not getgenv().ESPOn and head:FindFirstChild("PlayerESP") then
-					head:FindFirstChild("PlayerESP"):Destroy()
-				end
-			end
-		end
-
-		-- ESP trái + Auto Collect
-		for _, v in pairs(workspace:GetChildren()) do
-			if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
-				if getgenv().FruitESPOn and not v:FindFirstChild("FruitESP") then
-					CreateESP(v.Handle, v.Name, Color3.fromRGB(255, 0, 0), "FruitESP")
-				elseif not getgenv().FruitESPOn and v:FindFirstChild("FruitESP") then
-					v:FindFirstChild("FruitESP"):Destroy()
-				end
-				if getgenv().AutoCollect and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-					local dist = (plr.Character.HumanoidRootPart.Position - v.Handle.Position).Magnitude
-					if dist <= 50 then
-						firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
-						task.wait()
-						firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
-					end
-				end
-			end
-		end
-	end
-end)
---[[ 
-AUTO FARM BLOX FRUITS - AUTO CLICK + AUTO HAKI + BLOCK ẢO
-Version RAW Split Part 3
-]]
-
--- AUTO CLICK
-task.spawn(function()
-	while true do
-		task.wait(0.1)
-		if getgenv().AutoFarm and getgenv().Clicking then
-			game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 0)
-			task.wait()
-			game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 0)
-		end
-	end
-end)
-
--- AUTO HAKI VĨNH VIỄN
-task.spawn(function()
-	while true do
-		task.wait(6)
-		pcall(function()
-			game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Buso")
-		end)
-	end
-end)
-
--- TẠO BLOCK ẢO DƯỚI CHÂN KHI TWEEN
-function MakeTweenBlock()
-	local existing = workspace:FindFirstChild("TweenBlock")
-	if existing then return existing end
-	local part = Instance.new("Part", workspace)
-	part.Name = "TweenBlock"
-	part.Anchored = true
-	part.Transparency = 1
-	part.Size = Vector3.new(10, 1, 10)
-	part.CanCollide = true
-	return part
-end
-
-function TweenTo(pos)
-	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
-
-	local block = MakeTweenBlock()
-	local tweenInfo = TweenInfo.new((hrp.Position - pos).Magnitude / 250, Enum.EasingStyle.Linear)
-	local tween = ts:Create(hrp, tweenInfo, {CFrame = CFrame.new(pos)})
-	tween:Play()
-
-	-- Block ảo luôn dưới chân
-	task.spawn(function()
-		while tween.PlaybackState == Enum.PlaybackState.Playing do
-			if hrp and block then
-				block.Position = hrp.Position - Vector3.new(0, 3, 0)
-			end
-			task.wait()
-		end
-	end)
-
-	tween.Completed:Wait()
-end
--- PHẦN 4 + 5: GUI & CƠ CHẾ FARM TỐI ƯU
-repeat task.wait() until game:IsLoaded()
-if game.CoreGui:FindFirstChild("BFAuto") then game.CoreGui.BFAuto:Destroy() end
-
-local plr = game.Players.LocalPlayer
-local rs = game:GetService("RunService")
-local ts = game:GetService("TweenService")
-local vim = game:GetService("VirtualInputManager")
-local rep = game:GetService("ReplicatedStorage")
-
--- GUI CHÍNH
-local mainGui = Instance.new("ScreenGui", game.CoreGui)
-mainGui.Name = "BFAuto"
-
-local frame = Instance.new("Frame", mainGui)
-frame.Size = UDim2.new(0.6, 0, 0.6, 0)
-frame.Position = UDim2.new(0.2, 0, 0.2, 0)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.Active = true
-frame.Draggable = true
-frame.BorderSizePixel = 0
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
-
-local function CreateButton(text, posY)
-	local btn = Instance.new("TextButton", frame)
 	btn.Size = UDim2.new(1, -20, 0, 30)
 	btn.Position = UDim2.new(0, 10, 0, posY)
 	btn.Text = text
-	btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+	btn.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 	btn.TextColor3 = Color3.new(1, 1, 1)
 	btn.Font = Enum.Font.Gotham
 	btn.TextSize = 14
@@ -241,134 +68,77 @@ local function CreateButton(text, posY)
 	return btn
 end
 
+-- Các nút chức năng
 local btnFarm = CreateButton("Auto Farm: OFF", 10)
+local btnESP = CreateButton("ESP Người Chơi: OFF", 50)
+local btnFruitESP = CreateButton("ESP Trái Ác Quỷ: OFF", 90)
+local btnCollect = CreateButton("Auto Collect Trái: OFF", 130)
 
-local autoFarm = false
+-- Các biến trạng thái
+local autoFarm, espOn, fruitESPOn, autoCollect = false, false, false, false
+
+-- Bắt sự kiện khi nhấn vào nút
 btnFarm.MouseButton1Click:Connect(function()
 	autoFarm = not autoFarm
 	btnFarm.Text = autoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
 end)
 
--- BLOCK ẢO DƯỚI CHÂN
-local function MakePlatUnder(pos)
-	local plat = workspace:FindFirstChild("BFPlat") or Instance.new("Part", workspace)
-	plat.Name = "BFPlat"
-	plat.Anchored = true
-	plat.CanCollide = true
-	plat.Transparency = 1
-	plat.Size = Vector3.new(10, 1, 10)
-	plat.Position = pos - Vector3.new(0, 3, 0)
-end
+btnESP.MouseButton1Click:Connect(function()
+	espOn = not espOn
+	btnESP.Text = espOn and "ESP Người Chơi: ON" or "ESP Người Chơi: OFF"
+end)
 
--- TWEEN MƯỢT + BLOCK
-local function SmoothTween(pos)
-	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
-	MakePlatUnder(hrp.Position)
-	local distance = (hrp.Position - pos).Magnitude
-	local tween = ts:Create(hrp, TweenInfo.new(distance / 200, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
-	tween:Play()
-	tween.Completed:Wait()
-end
+btnFruitESP.MouseButton1Click:Connect(function()
+	fruitESPOn = not fruitESPOn
+	btnFruitESP.Text = fruitESPOn and "ESP Trái Ác Quỷ: ON" or "ESP Trái Ác Quỷ: OFF"
+end)
 
--- CLICK ẢO
+btnCollect.MouseButton1Click:Connect(function()
+	autoCollect = not autoCollect
+	btnCollect.Text = autoCollect and "Auto Collect Trái: ON" or "Auto Collect Trái: OFF"
+end)
+-- Auto bật Haki vô hạn (lỡ tắt sẽ tự bật lại)
+task.spawn(function()
+	while task.wait(5) do
+		pcall(function()
+			rep.Remotes.CommE:FireServer("Buso")
+		end)
+	end
+end)
+
+-- Auto Click chuột thật để đánh quái
 local function ClickAttack()
 	vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
 	task.wait()
 	vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
 end
 
--- HÀNH ĐỘNG FARM
 task.spawn(function()
-	while task.wait() do
+	while task.wait(0.2) do
 		if autoFarm then
-			local data = getgenv().BF_LevelFarm
-			if not data then continue end
-			local char = plr.Character
-			local hrp = char and char:FindFirstChild("HumanoidRootPart")
-			if not hrp then continue end
-
-			-- TWEEN tới đảo
-			SmoothTween(data.Pos)
-			task.wait(2.5)
-
-			-- KIỂM TRA QUEST
-			local guiQuest = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest")
-			local hasQuest = guiQuest and guiQuest.Visible
-
-			if not hasQuest then
-				ClickAttack() -- Tắt auto click để tránh đè bảng
-				SmoothTween(data.QuestPos)
-				task.wait(0.3)
-				rep.Remotes.CommF_:InvokeServer("StartQuest", data.Quest, 1)
-				task.wait(0.5)
-			end
-		else
-			if workspace:FindFirstChild("BFPlat") then workspace.BFPlat:Destroy() end
+			ClickAttack()
 		end
 	end
 end)
--- ĐÁNH QUÁI - FARM LIÊN TỤC KHÔNG BỊ GIÁN ĐOẠN
-local function GetMob()
-	local region = workspace.Enemies:GetChildren()
-	for _, mob in pairs(region) do
-		if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") then
-			if mob.Name == getgenv().BF_LevelFarm.Mob then
-				if mob.Humanoid.Health > 0 then
-					return mob
-				end
-			end
-		end
-	end
-end
-
--- Hitbox và đứng yên
-local function EnhanceMob(mob)
-	for _,v in ipairs(mob:GetChildren()) do
-		if v:IsA("BasePart") then
-			v.Size = Vector3.new(60, 60, 60)
-			v.Transparency = 0.2
-			v.Anchored = true
-		end
-	end
-end
-
--- Auto Attack
-task.spawn(function()
-	while task.wait(0.15) do
-		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			local mob = GetMob()
-			if mob then
-				EnhanceMob(mob)
-
-				local mobPos = mob.HumanoidRootPart.Position + Vector3.new(0, 10, 0)
-				ts:Create(plr.Character.HumanoidRootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {
-					CFrame = CFrame.new(mobPos)
-				}):Play()
-
-				ClickAttack()
-			else
-				-- Nếu không tìm thấy quái, không làm gì cả
-			end
-		end
-	end
-end)
--- ESP + AUTO COLLECT + AUTO HAKI
-local function CreateESP(obj, text, color, name)
-	local tag = Instance.new("BillboardGui", obj)
-	tag.Name = name
+-- Tạo ESP dạng Billboard
+local function CreateESP(part, name, color, tagName)
+	local tag = Instance.new("BillboardGui", part)
+	tag.Name = tagName
 	tag.Size = UDim2.new(0, 100, 0, 40)
 	tag.StudsOffset = Vector3.new(0, 2, 0)
 	tag.AlwaysOnTop = true
 
-	local lbl = Instance.new("TextLabel", tag)
-	lbl.Size = UDim2.new(1, 0, 1, 0)
-	lbl.Text = text
-	lbl.TextColor3 = color
-	lbl.TextSize = 10
-	lbl.BackgroundTransparency = 1
+	local txt = Instance.new("TextLabel", tag)
+	txt.Size = UDim2.new(1, 0, 1, 0)
+	txt.Text = name
+	txt.TextColor3 = color
+	txt.TextSize = 10
+	txt.BackgroundTransparency = 1
+	txt.Font = Enum.Font.Gotham
+	txt.TextStrokeTransparency = 0.5
 end
 
+-- ESP + Auto Collect
 task.spawn(function()
 	while task.wait(1) do
 		-- ESP người chơi
@@ -383,366 +153,758 @@ task.spawn(function()
 			end
 		end
 
-		-- ESP + Auto Collect trái
-		for _,v in pairs(workspace:GetChildren()) do
-			if v:IsA("Tool") and v:FindFirstChild("Handle") then
-				local handle = v:FindFirstChild("Handle")
+		-- ESP trái + auto collect
+		for _, v in pairs(workspace:GetChildren()) do
+			if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
 				if fruitESPOn and not v:FindFirstChild("FruitESP") then
 					CreateESP(v, v.Name, Color3.fromRGB(255, 0, 0), "FruitESP")
 				elseif not fruitESPOn and v:FindFirstChild("FruitESP") then
 					v:FindFirstChild("FruitESP"):Destroy()
 				end
-
-				-- Auto collect khi gần
-				if autoCollect and (plr.Character.HumanoidRootPart.Position - handle.Position).Magnitude < 60 then
-					firetouchinterest(plr.Character.HumanoidRootPart, handle, 0)
-					firetouchinterest(plr.Character.HumanoidRootPart, handle, 1)
+				if autoCollect and (v.Position - plr.Character.HumanoidRootPart.Position).Magnitude < 50 then
+					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
+					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
 				end
 			end
 		end
 	end
 end)
-
--- AUTO BẬT HAKI MÃI MÃI
-task.spawn(function()
-	while true do
-		task.wait(5)
-		rep.Remotes.CommE:FireServer("Buso")
-	end
-end)
--- DANH SÁCH CÁC ĐẢO SEA 1 (Cần thêm đủ hết nếu bạn muốn full Sea 1)
-getgenv().BF_LevelFarm = {
-	[1] = {Quest="BanditQuest1",Mob="Bandit",Pos=Vector3.new(1060,17,1547),QuestPos=Vector3.new(1060,17,1545)},
-	[10] = {Quest="JungleQuest",Mob="Monkey",Pos=Vector3.new(-1602,36,153),QuestPos=Vector3.new(-1602,36,155)},
-	-- Thêm đầy đủ các level tiếp theo ở Sea 1...
+-- Bảng nhiệm vụ Sea 1 theo level
+local QuestList = {
+	{Level = 10, Name = "Bandit", QuestName = "BanditQuest1", Monster = "Bandit", Pos = Vector3.new(1060, 16, 1547)},
+	{Level = 30, Name = "Monkey", QuestName = "JungleQuest", Monster = "Monkey", Pos = Vector3.new(-1602, 36, 153)},
+	{Level = 60, Name = "Pirate", QuestName = "BuggyQuest1", Monster = "Pirate", Pos = Vector3.new(-1197, 46, 3828)},
+	{Level = 90, Name = "Brute", QuestName = "BuggyQuest2", Monster = "Brute", Pos = Vector3.new(-1140, 46, 3853)},
+	{Level = 120, Name = "Desert Bandit", QuestName = "DesertQuest", Monster = "Desert Bandit", Pos = Vector3.new(931, 7, 4483)},
+	{Level = 150, Name = "Snow Bandit", QuestName = "SnowQuest", Monster = "Snow Bandit", Pos = Vector3.new(1388, 87, -1297)},
+	{Level = 190, Name = "Dark Master", QuestName = "MarineQuest3", Monster = "Dark Master", Pos = Vector3.new(-4845, 20, 4308)},
+	{Level = 210, Name = "Toga Warrior", QuestName = "ColosseumQuest", Monster = "Toga Warrior", Pos = Vector3.new(-1780, 5, -2917)},
+	{Level = 250, Name = "Military Soldier", QuestName = "MagmaQuest", Monster = "Military Soldier", Pos = Vector3.new(-5315, 20, 8514)},
+	{Level = 300, Name = "Fishman Warrior", QuestName = "FishmanQuest", Monster = "Fishman Warrior", Pos = Vector3.new(61122, 18, 1569)},
+	{Level = 375, Name = "God's Guard", QuestName = "SkyQuest3", Monster = "God's Guard", Pos = Vector3.new(-4642, 845, -1933)},
+	{Level = 450, Name = "Galley Pirate", QuestName = "FountainQuest", Monster = "Galley Pirate", Pos = Vector3.new(5531, 92, 3901)},
+	{Level = 700, Name = "ReadyForSea2", QuestName = "Sea2Teleport", Monster = "", Pos = Vector3.new(0, 0, 0)}
 }
 
--- HÀM LẤY ĐẢO THEO LEVEL
-local function GetTarget()
+-- Hàm tìm đảo farm phù hợp theo Level
+local function GetQuestByLevel()
 	local level = plr.Data.Level.Value
-	local last
-	for lv, data in pairs(getgenv().BF_LevelFarm) do
-		if level >= lv then
-			last = data
+	for i = #QuestList, 1, -1 do
+		if level >= QuestList[i].Level then
+			return QuestList[i]
 		end
 	end
-	return last
+end
+-- Tạo block ảo dưới chân khi tween để không rớt xuống biển
+local function CreateBlockUnderPlayer()
+	if not workspace:FindFirstChild("TweenBlock_" .. plr.Name) then
+		local part = Instance.new("Part", workspace)
+		part.Name = "TweenBlock_" .. plr.Name
+		part.Size = Vector3.new(8, 1, 8)
+		part.Anchored = true
+		part.CanCollide = true
+		part.Transparency = 1
+	end
 end
 
--- TWEEN MƯỢT + BLOCK ẢO BÁM THEO NGƯỜI
+local function UpdateBlockPosition()
+	local block = workspace:FindFirstChild("TweenBlock_" .. plr.Name)
+	if block and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		block.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3, 0)
+	end
+end
+
+-- Tween tới vị trí
 local function TweenTo(pos)
-	local char = plr.Character
-	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-
-	local hrp = char.HumanoidRootPart
-	local distance = (hrp.Position - pos).Magnitude
-	local tweenTime = distance / 250
-	local tween = ts:Create(hrp, TweenInfo.new(tweenTime, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
-	
-	-- BLOCK ẢO CHỐNG RƠI
-	local followBlock = Instance.new("Part", workspace)
-	followBlock.Size = Vector3.new(10,1,10)
-	followBlock.Anchored = true
-	followBlock.CanCollide = true
-	followBlock.Transparency = 1
-	followBlock.Name = "BF_Block"
-	
-	local con = rs.Heartbeat:Connect(function()
-		if hrp and followBlock then
-			followBlock.Position = hrp.Position - Vector3.new(0, 3.2, 0)
+	local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		CreateBlockUnderPlayer()
+		local ti = TweenInfo.new((hrp.Position - pos).Magnitude / 200, Enum.EasingStyle.Linear)
+		local tween = ts:Create(hrp, ti, {CFrame = CFrame.new(pos)})
+		tween:Play()
+		while tween.PlaybackState == Enum.PlaybackState.Playing do
+			task.wait()
+			UpdateBlockPosition()
 		end
-	end)
+	end
+end
 
+-- Tự động nhận nhiệm vụ
+local function AcceptQuest(questData)
+	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		TweenTo(questData.Pos + Vector3.new(0, 5, 0))
+		task.wait(1)
+		rep.Remotes.CommE:InvokeServer("StartQuest", questData.QuestName, 1)
+	end
+end
+-- Danh sách nhiệm vụ SEA 1
+local QuestList = {
+	["Bandit"] = {Level = 10, Pos = Vector3.new(1060, 17, 1547), QuestName = "BanditQuest1", EnemyName = "Bandit"},
+	["Monkey"] = {Level = 15, Pos = Vector3.new(-1602, 36, 152), QuestName = "JungleQuest", EnemyName = "Monkey"},
+	["Gorilla"] = {Level = 20, Pos = Vector3.new(-1602, 36, 152), QuestName = "JungleQuest", EnemyName = "Gorilla"},
+	-- Thêm các quái SEA 1 khác vào đây...
+}
+
+-- Lấy nhiệm vụ theo level hiện tại
+local function GetQuest()
+	local myLevel = plr.Data.Level.Value
+	local selected
+	for _, v in pairs(QuestList) do
+		if myLevel >= v.Level then
+			selected = v
+		end
+	end
+	return selected
+end
+
+-- Tăng hitbox và làm quái đứng im
+local function BuffMob(mob)
+	for _,v in ipairs(mob:GetChildren()) do
+		if v:IsA("BasePart") then
+			v.Size = Vector3.new(60, 60, 60)
+			v.Transparency = 0.2
+			v.Anchored = true
+		end
+	end
+end
+
+-- Tìm quái cần đánh
+local function FindMob(enemyName)
+	for _, mob in pairs(workspace.Enemies:GetChildren()) do
+		if mob.Name == enemyName and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+			return mob
+		end
+	end
+end
+
+-- Bay lên đầu quái + đánh
+local function FarmMob(mob)
+	local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+	local mobHrp = mob:FindFirstChild("HumanoidRootPart")
+	if hrp and mobHrp then
+		BuffMob(mob)
+		while mob and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and autoFarm do
+			hrp.CFrame = mobHrp.CFrame * CFrame.new(0, 15, 0)
+			UpdateBlockPosition()
+			ClickAttack()
+			task.wait(0.1)
+		end
+	end
+end
+-- Tạo block ảo dưới chân
+local fakeBlock = Instance.new("Part", workspace)
+fakeBlock.Anchored = true
+fakeBlock.CanCollide = true
+fakeBlock.Size = Vector3.new(10,1,10)
+fakeBlock.Transparency = 1
+fakeBlock.Name = "TweenBlock"
+
+function UpdateBlockPosition()
+	local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if root and fakeBlock then
+		fakeBlock.CFrame = CFrame.new(root.Position - Vector3.new(0,3.5,0))
+	end
+end
+
+-- Tween đến vị trí
+function TweenTo(pos)
+	local root = plr.Character:FindFirstChild("HumanoidRootPart")
+	if root then
+		local tween = ts:Create(root, TweenInfo.new((root.Position - pos).Magnitude / 300, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+		tween:Play()
+		repeat
+			UpdateBlockPosition()
+			task.wait()
+		until (root.Position - pos).Magnitude < 5 or not tween.PlaybackState == Enum.PlaybackState.Playing
+	end
+end
+
+-- Lặp farm
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm then
+			local questData = GetQuest()
+			if not questData then continue end
+
+			local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+			if not root then continue end
+
+			local curQuest = plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
+			if not curQuest:find(questData.EnemyName) then
+				-- Tween đến đảo
+				TweenTo(questData.Pos + Vector3.new(0, 10, 0))
+				task.wait(3)
+
+				-- Nhận nhiệm vụ
+				rep.Remotes.CommE:InvokeServer("StartQuest", questData.QuestName, 1)
+			end
+
+			-- Tìm và farm quái
+			local mob = FindMob(questData.EnemyName)
+			if mob then
+				FarmMob(mob)
+			end
+		end
+	end
+end)
+-- Danh sách tất cả võ và kiếm trong Blox Fruits (cập nhật Sea 1)
+local MeleeList = {
+	"Combat", "Black Leg", "Electro", "Fishman Karate", "Dragon Breath", "Superhuman"
+}
+local SwordList = {
+	"Katana", "Cutlass", "Dual Katana", "Iron Mace", "Pipe", "Triple Katana",
+	"Dual-Headed Blade", "Bisento", "Shark Blade", "Soul Cane"
+}
+
+-- Ưu tiên trang bị võ trước
+function AutoEquip()
+	local bp = plr.Backpack:GetChildren()
+	for _, v in ipairs(MeleeList) do
+		for _, tool in pairs(bp) do
+			if tool:IsA("Tool") and tool.Name == v then
+				plr.Character.Humanoid:EquipTool(tool)
+				return
+			end
+		end
+	end
+	for _, v in ipairs(SwordList) do
+		for _, tool in pairs(bp) do
+			if tool:IsA("Tool") and tool.Name == v then
+				plr.Character.Humanoid:EquipTool(tool)
+				return
+			end
+		end
+	end
+end
+
+-- Kích hoạt Auto Equip liên tục mỗi 3s
+task.spawn(function()
+	while task.wait(3) do
+		if autoFarm then
+			AutoEquip()
+		end
+	end
+end)
+local function CreatePlatform()
+	local part = Instance.new("Part", workspace)
+	part.Size = Vector3.new(60, 1, 60)
+	part.Anchored = true
+	part.Transparency = 1
+	part.CanCollide = true
+	part.Name = "FarmPad"
+	return part
+end
+
+local function TweenTo(position)
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local pad = CreatePlatform()
+	pad.Position = position - Vector3.new(0, 3.5, 0)
+
+	local tween = ts:Create(hrp, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(position)})
 	tween:Play()
 	tween.Completed:Wait()
-	con:Disconnect()
-	if followBlock then followBlock:Destroy() end
+
+	if pad then pad:Destroy() end
 end
 
--- LÀM TO HITBOX + ĐÈ QUÁI XUỐNG
-local function PrepareMob(mob)
+-- Fix quái đứng im bằng Anchor
+local function AnchorMob(mob)
+	for _,v in pairs(mob:GetDescendants()) do
+		if v:IsA("BasePart") then
+			v.Anchored = true
+		end
+	end
+end
+
+-- Tăng hitbox
+local function ExpandHitbox(mob)
+	for _,v in ipairs(mob:GetChildren()) do
+		if v:IsA("BasePart") then
+			v.Size = Vector3.new(60, 60, 60)
+			v.Transparency = 0.2
+		end
+	end
+end
+
+-- Farm 1 con mob cụ thể
+local function AttackMob(mob)
+	repeat
+		task.wait(0.2)
+		if not autoFarm or not mob or not mob:FindFirstChild("HumanoidRootPart") then break end
+
+		local root = mob.HumanoidRootPart
+		TweenTo(root.Position + Vector3.new(0, 15, 0))
+
+		AnchorMob(mob)
+		ExpandHitbox(mob)
+		ClickAttack()
+	until not mob or not mob.Parent or mob.Humanoid.Health <= 0
+end
+
+-- Tìm quái ở đảo hiện tại
+local function GetMobOnMap()
+	for _,v in pairs(workspace.Enemies:GetChildren()) do
+		if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+			return v
+		end
+	end
+	return nil
+end
+
+-- Luồng farm chính
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local mob = GetMobOnMap()
+			if mob then
+				AttackMob(mob)
+			end
+		end
+	end
+end)
+-- Dữ liệu level từng đảo ở Sea 1
+local levelQuest = {
+	{lvl = 10,  questName = "Bandit",     pos = Vector3.new(1060, 17, 1560)},
+	{lvl = 15,  questName = "Monkey",     pos = Vector3.new(-1600, 35, 145)},
+	{lvl = 30,  questName = "Gorilla",    pos = Vector3.new(-1335, 36, -30)},
+	{lvl = 40,  questName = "Pirate",     pos = Vector3.new(-1200, 4, 3930)},
+	{lvl = 60,  questName = "Brute",      pos = Vector3.new(-1120, 15, 4340)},
+	{lvl = 75,  questName = "Desert Bandit",pos = Vector3.new(900, 7, 4000)},
+	{lvl = 90,  questName = "Desert Officer",pos = Vector3.new(1600, 10, 4300)},
+	{lvl = 100, questName = "Snow Bandit",pos = Vector3.new(1370, 5, -1325)},
+	{lvl = 120, questName = "Snowman",    pos = Vector3.new(1250, 130, -1600)},
+	{lvl = 130, questName = "Chief Petty Officer",pos = Vector3.new(-4850, 20, 4300)},
+	{lvl = 180, questName = "Sky Bandit", pos = Vector3.new(-4950, 390, -200)},
+	{lvl = 210, questName = "Dark Master",pos = Vector3.new(-5250, 390, -450)},
+	{lvl = 250, questName = "Toga Warrior",pos = Vector3.new(-1800, 560, -2900)},
+	{lvl = 300, questName = "Gladiator",  pos = Vector3.new(-1250, 390, -2600)},
+	{lvl = 375, questName = "Military Soldier",pos = Vector3.new(-5200, 80, 4500)},
+	{lvl = 400, questName = "Military Spy",pos = Vector3.new(-5300, 80, 4900)},
+	{lvl = 450, questName = "Fishman Warrior",pos = Vector3.new(6100, 10, 1600)},
+	{lvl = 475, questName = "Fishman Commando",pos = Vector3.new(6400, 10, 1700)},
+	{lvl = 525, questName = "God's Guard",pos = Vector3.new(-4600, 850, -1800)},
+	{lvl = 550, questName = "Shanda",     pos = Vector3.new(-4800, 850, -2000)},
+	{lvl = 625, questName = "Royal Squad",pos = Vector3.new(-5550, 850, -2100)},
+	{lvl = 650, questName = "Royal Soldier",pos = Vector3.new(-5800, 850, -2300)},
+}
+
+-- Hàm lấy đảo theo level
+local function GetIslandByLevel()
+	local myLvl = plr.Data.Level.Value
+	for i = #levelQuest, 1, -1 do
+		if myLvl >= levelQuest[i].lvl then
+			return levelQuest[i]
+		end
+	end
+	return levelQuest[1]
+end
+
+-- Nhận quest nếu chưa có
+local function CheckAndTakeQuest()
+	local npcInfo = GetIslandByLevel()
+	if not npcInfo then return end
+
+	local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	-- Đã nhận nhiệm vụ rồi
+	local current = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest")
+	if current and current.Visible then return end
+
+	-- Tween đến NPC
+	TweenTo(npcInfo.pos + Vector3.new(0, 5, 0))
+
+	task.wait(0.3)
+
+	rep.Remotes.Comm:InvokeServer("StartQuest", npcInfo.questName, 1)
+end
+
+-- Luồng check nhận nhiệm vụ
+task.spawn(function()
+	while task.wait(2) do
+		if autoFarm then
+			CheckAndTakeQuest()
+		end
+	end
+end)
+-- Kiểm tra có đang đứng đúng đảo không
+local function IsOnCorrectIsland()
+	local myPos = plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character.HumanoidRootPart.Position
+	local currentIsland = GetIslandByLevel()
+	if not myPos or not currentIsland then return false end
+	return (myPos - currentIsland.pos).Magnitude < 200
+end
+
+-- Tạo block ảo dưới chân tránh rớt
+local ghostBlock
+local function CreateGhostBlock()
+	if ghostBlock then ghostBlock:Destroy() end
+	ghostBlock = Instance.new("Part", workspace)
+	ghostBlock.Size = Vector3.new(12,1,12)
+	ghostBlock.Anchored = true
+	ghostBlock.CanCollide = true
+	ghostBlock.Transparency = 0.3
+	ghostBlock.Material = Enum.Material.ForceField
+end
+
+-- Tween mượt
+function TweenTo(pos)
+	local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local ti = TweenInfo.new((hrp.Position - pos).Magnitude / 250, Enum.EasingStyle.Linear)
+	local goal = {CFrame = CFrame.new(pos)}
+	local tw = ts:Create(hrp, ti, goal)
+	tw:Play()
+
+	-- Gắn block dưới chân
+	CreateGhostBlock()
+	while tw.PlaybackState == Enum.PlaybackState.Playing do
+		task.wait()
+		if hrp and ghostBlock then
+			ghostBlock.Position = hrp.Position - Vector3.new(0, 3.5, 0)
+		end
+	end
+end
+
+-- Luồng kiểm tra và tween đến đảo phù hợp
+task.spawn(function()
+	while task.wait(5) do
+		if autoFarm and not IsOnCorrectIsland() then
+			local island = GetIslandByLevel()
+			if island then
+				TweenTo(island.pos + Vector3.new(0, 10, 0))
+				task.wait(3) -- chờ load quái
+			end
+		end
+	end
+end)
+-- Tăng hitbox + giữ quái đứng im
+local function ExpandMobHitbox(mob)
 	for _,v in ipairs(mob:GetChildren()) do
 		if v:IsA("BasePart") then
 			v.Size = Vector3.new(60,60,60)
 			v.Transparency = 0.2
+			v.Anchored = true -- giữ đứng im
 		end
 	end
-
-	if mob:FindFirstChild("HumanoidRootPart") then
-		local anchor = Instance.new("Part", mob)
-		anchor.Anchored = true
-		anchor.Transparency = 1
-		anchor.CanCollide = true
-		anchor.Size = Vector3.new(8, 1, 8)
-		anchor.Position = mob.HumanoidRootPart.Position - Vector3.new(0, 3, 0)
-	end
-end
--- NHẬN QUEST THÔNG MINH
-local function HasQuest()
-	return plr.PlayerGui:FindFirstChild("QuestGUI") and plr.PlayerGui.QuestGUI.Enabled
 end
 
-local function IsQuestDone()
-	if HasQuest() then
-		local txt = plr.PlayerGui.QuestGUI.QuestBoard.QuestTitle.Title.Text
-		local found = txt:match("(%d+)/(%d+)")
-		if found then
-			local current, goal = txt:match("(%d+)/(%d+)")
-			return tonumber(current) >= tonumber(goal)
-		end
-	end
-	return false
+-- Tạo block ảo đứng trên đầu quái
+local standBlock
+local function CreateStandBlock(pos)
+	if standBlock then standBlock:Destroy() end
+	standBlock = Instance.new("Part", workspace)
+	standBlock.Size = Vector3.new(5,1,5)
+	standBlock.Anchored = true
+	standBlock.CanCollide = true
+	standBlock.Transparency = 0.3
+	standBlock.Position = pos + Vector3.new(0, 3*6, 0)
 end
 
-local function AcceptQuest()
-	local target = GetTarget()
-	if not target then return end
-	if not HasQuest() or IsQuestDone() then
-		TweenTo(target.QuestPos)
-		task.wait(0.5)
-		rep.Remotes.CommQuest:InvokeServer("StartQuest", target.Quest, 1)
-	end
-end
-
--- FARM THÔNG MINH
-task.spawn(function()
-	while task.wait(0.5) do
-		if autoFarm then
-			local target = GetTarget()
-			if not target then continue end
-			if not HasQuest() or IsQuestDone() then
-				AcceptQuest()
-			end
-
-			local mobList = workspace.Enemies:GetChildren()
-			for _,mob in pairs(mobList) do
-				if mob:FindFirstChild("HumanoidRootPart") and mob.Name == target.Mob then
-					if mob.Humanoid.Health > 0 then
-						PrepareMob(mob)
-						repeat
-							local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-							if hrp and mob:FindFirstChild("HumanoidRootPart") then
-								local mobPos = mob.HumanoidRootPart.Position + Vector3.new(0, 12, 0)
-								TweenTo(mobPos)
-							end
-							task.wait(0.2)
-						until mob.Humanoid.Health <= 0 or not autoFarm
-					end
-				end
-			end
-		end
-	end
-end)
-
--- AUTO CLICK TRÁNH BUG
-task.spawn(function()
-	while task.wait(0.15) do
-		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			local nearNPC = false
-			for _,v in pairs(workspace:GetDescendants()) do
-				if v:IsA("ClickDetector") and (v.Parent.Position - plr.Character.HumanoidRootPart.Position).Magnitude < 10 then
-					nearNPC = true
-					break
-				end
-			end
-			if not nearNPC then
-				ClickAttack()
-			end
-		end
-	end
-end)
--- PHẦN 8: GUI chính to hơn + fix lỗi GUI bị trùng
-repeat task.wait() until game:IsLoaded()
-
--- Xóa GUI cũ nếu có
-pcall(function()
-	if game.CoreGui:FindFirstChild("BFAuto") then
-		game.CoreGui.BFAuto:Destroy()
-	end
-end)
-
--- Tạo GUI chính
-local mainGui = Instance.new("ScreenGui")
-mainGui.Name = "BFAuto"
-mainGui.Parent = game.CoreGui
-mainGui.ResetOnSpawn = false
-
--- Nút Toggle GUI
-local toggleBtn = Instance.new("TextButton", mainGui)
-toggleBtn.Size = UDim2.new(0, 100, 0, 30)
-toggleBtn.Position = UDim2.new(0, 10, 0.85, 0)
-toggleBtn.Text = "Toggle GUI"
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-toggleBtn.TextColor3 = Color3.new(1, 1, 1)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 14
-Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
-
--- Khung GUI chính - to hơn và bo góc đẹp
-local guiFrame = Instance.new("Frame", mainGui)
-guiFrame.Name = "MainFrame"
-guiFrame.Size = UDim2.new(0.6, 0, 0.6, 0) -- Chiếm 60% màn hình
-guiFrame.Position = UDim2.new(0.2, 0, 0.2, 0)
-guiFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-guiFrame.BorderSizePixel = 0
-guiFrame.Active = true
-guiFrame.Draggable = true
-guiFrame.Visible = true
-Instance.new("UICorner", guiFrame).CornerRadius = UDim.new(0, 12)
-
--- Toggle GUI bằng nút
-toggleBtn.MouseButton1Click:Connect(function()
-	guiFrame.Visible = not guiFrame.Visible
-end)
--- Dữ liệu Sea 1 (chỉ là ví dụ, bạn cần nhập thêm nếu muốn full đảo)
-getgenv().BF_LevelFarm = {
-	[1] = {Quest="BanditQuest1",Mob="Bandit",Pos=Vector3.new(1060,17,1547),QuestPos=Vector3.new(1060,17,1545)},
-	[10] = {Quest="JungleQuest",Mob="Monkey",Pos=Vector3.new(-1602,36,153),QuestPos=Vector3.new(-1602,36,155)},
-	-- Thêm đầy đủ đảo ở Sea 1 tại đây...
-}
-
-local function GetTarget()
-	local level = plr.Data.Level.Value
-	local last
-	for lv, data in pairs(getgenv().BF_LevelFarm) do
-		if level >= lv then last = data end
-	end
-	return last
-end
-
-local function TweenTo(pos)
+-- Đánh toàn bộ quái trong khu vực
+local function AttackAllMobs()
 	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
 	if not hrp then return end
 
-	-- Tạo block ảo theo
-	local fake = Instance.new("Part", workspace)
-	fake.Anchored = true
-	fake.CanCollide = true
-	fake.Transparency = 1
-	fake.Size = Vector3.new(10, 1, 10)
-	fake.Position = hrp.Position - Vector3.new(0,3,0)
-	fake.Name = "TweenPlat"
-	
-	local ti = TweenInfo.new((hrp.Position - pos).Magnitude/200, Enum.EasingStyle.Linear)
-	local tween = ts:Create(hrp, ti, {CFrame = CFrame.new(pos)})
-	tween:Play()
-	tween.Completed:Wait()
+	local island = GetIslandByLevel()
+	if not island then return end
 
-	fake:Destroy()
+	local mobFolder = workspace.Enemies
+	for _,mob in pairs(mobFolder:GetChildren()) do
+		if mob:FindFirstChild("HumanoidRootPart") and mob.Name == island.mon then
+			ExpandMobHitbox(mob)
+			local mobPos = mob.HumanoidRootPart.Position
+			TweenTo(mobPos + Vector3.new(0, 3*6, 0)) -- bay lên đầu
+			CreateStandBlock(mobPos)
+			local count = 0
+			repeat
+				ClickAttack()
+				task.wait(0.2)
+				count += 1
+			until not mob:FindFirstChild("HumanoidRootPart") or count > 100
+		end
+	end
 end
 
+-- Luồng auto farm quái
 task.spawn(function()
-	local lastQuest = ""
-	while true do
-		task.wait()
+	while task.wait(1) do
 		if autoFarm then
-			local data = GetTarget()
-			if not data then continue end
+			-- Kiểm tra nhiệm vụ hiện tại
+			local questFolder = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main.Quest
+			local hasQuest = questFolder and questFolder.Visible and tostring(questFolder.Title.Text):find(GetIslandByLevel().mon)
 
-			local char = plr.Character
-			local hrp = char and char:FindFirstChild("HumanoidRootPart")
-			if not hrp then continue end
-
-			-- Đến vị trí đảo farm
-			TweenTo(data.Pos)
-			task.wait(1)
-
-			-- Kiểm tra quest
-			local questUI = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest")
-			local hasQuest = questUI and questUI.Visible
-			local finished = false
-
-			-- Nếu chưa có quest -> đến NPC lấy
 			if not hasQuest then
-				TweenTo(data.QuestPos)
-				task.wait(0.3)
-				rep.Remotes.CommF_:InvokeServer("StartQuest", data.Quest, 1)
-				task.wait(1)
-			end
-
-			-- Farm quái
-			while autoFarm and not finished do
-				local found = false
-				for _, mob in pairs(workspace.Enemies:GetChildren()) do
-					if mob.Name == data.Mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-						found = true
-						local root = mob.HumanoidRootPart
-						
-						-- Hitbox to và đè quái xuống
-						for _, part in ipairs(mob:GetChildren()) do
-							if part:IsA("BasePart") then
-								part.Size = Vector3.new(60,60,60)
-								part.Transparency = 0.2
-							end
-						end
-						root.CanCollide = false
-
-						local above = root.Position + Vector3.new(0, 10, 0)
-						local plat = Instance.new("Part", root)
-						plat.Anchored = true
-						plat.CanCollide = true
-						plat.Transparency = 1
-						plat.Size = Vector3.new(8,1,8)
-						plat.Position = above
-						plat.Name = "FarmPlat"
-
-						-- Farm loop
-						repeat
-							TweenTo(above + Vector3.new(0,1,0)) -- Tween liên tục trên đầu
-							task.wait(0.15)
-						until not autoFarm or mob.Humanoid.Health <= 0 or not mob.Parent
-
-						plat:Destroy()
-					end
+				-- Di chuyển tới NPC nhận quest
+				local island = GetIslandByLevel()
+				if island and island.npc then
+					TweenTo(island.npc + Vector3.new(0, 4, 0))
+					task.wait(1)
+					rep.Remotes.CommE:FireServer("StartQuest", island.qname, 1)
+					task.wait(1)
 				end
-				-- Kiểm tra nhiệm vụ hoàn thành chưa
-				finished = not questUI or not questUI.Visible
-				if not found then task.wait(0.5) end
-			end
-
-			-- Nếu hoàn thành nhiệm vụ thì quay lại nhận tiếp
-			if autoFarm and finished then
-				TweenTo(data.QuestPos)
-				task.wait(0.5)
-				rep.Remotes.CommF_:InvokeServer("StartQuest", data.Quest, 1)
+			else
+				-- Bắt đầu farm quái
+				AttackAllMobs()
 			end
 		end
 	end
 end)
--- GUI Toggle
-local mainGui = Instance.new("ScreenGui", game.CoreGui)
-mainGui.Name = "BFAuto"
+-- Hàm tạo ESP
+local function CreateESP(part, name, color, tagName)
+	local tag = Instance.new("BillboardGui", part)
+	tag.Name = tagName
+	tag.Size = UDim2.new(0, 80, 0, 20)
+	tag.StudsOffset = Vector3.new(0, 2, 0)
+	tag.AlwaysOnTop = true
 
-local toggleBtn = Instance.new("TextButton", mainGui)
-toggleBtn.Size = UDim2.new(0, 100, 0, 30)
-toggleBtn.Position = UDim2.new(0, 10, 0.85, 0)
-toggleBtn.Text = "Toggle GUI"
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	local txt = Instance.new("TextLabel", tag)
+	txt.Size = UDim2.new(1, 0, 1, 0)
+	txt.Text = name
+	txt.TextColor3 = color
+	txt.TextSize = 10
+	txt.Font = Enum.Font.SourceSansBold
+	txt.BackgroundTransparency = 1
+end
+
+-- Luồng ESP & Auto Collect
+task.spawn(function()
+	while task.wait(1) do
+		-- ESP Người chơi
+		for _, pl in pairs(game.Players:GetPlayers()) do
+			if pl ~= plr and pl.Character and pl.Character:FindFirstChild("Head") then
+				local head = pl.Character.Head
+				if espOn and not head:FindFirstChild("PlayerESP") then
+					CreateESP(head, pl.Name, Color3.fromRGB(0, 255, 0), "PlayerESP")
+				elseif not espOn and head:FindFirstChild("PlayerESP") then
+					head:FindFirstChild("PlayerESP"):Destroy()
+				end
+			end
+		end
+
+		-- ESP Trái & Auto Collect
+		for _,v in pairs(workspace:GetChildren()) do
+			if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
+				if fruitESPOn and not v:FindFirstChild("FruitESP") then
+					CreateESP(v, v.Name, Color3.fromRGB(255, 0, 0), "FruitESP")
+				elseif not fruitESPOn and v:FindFirstChild("FruitESP") then
+					v.FruitESP:Destroy()
+				end
+
+				if autoCollect and (plr.Character.HumanoidRootPart.Position - v.Position).Magnitude < 50 then
+					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
+					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
+				end
+			end
+		end
+	end
+end)
+-- Auto Click
+task.spawn(function()
+	while task.wait(0.15) do
+		if autoFarm then
+			vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+			task.wait()
+			vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+		end
+	end
+end)
+
+-- Auto Haki
+task.spawn(function()
+	while true do
+		task.wait(5)
+		pcall(function()
+			rep.Remotes.CommE:FireServer("Buso")
+		end)
+	end
+end)
+
+-- ESP + Auto Collect Fruit
+task.spawn(function()
+	while task.wait(1) do
+		for _,v in pairs(workspace:GetChildren()) do
+			if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
+				if fruitESPOn and not v:FindFirstChild("FruitESP") then
+					local tag = Instance.new("BillboardGui", v)
+					tag.Name = "FruitESP"
+					tag.Size = UDim2.new(0, 100, 0, 40)
+					tag.StudsOffset = Vector3.new(0, 2, 0)
+					tag.AlwaysOnTop = true
+
+					local lbl = Instance.new("TextLabel", tag)
+					lbl.Size = UDim2.new(1, 0, 1, 0)
+					lbl.Text = v.Name
+					lbl.TextColor3 = Color3.fromRGB(255,0,0)
+					lbl.TextSize = 10
+					lbl.BackgroundTransparency = 1
+				elseif not fruitESPOn and v:FindFirstChild("FruitESP") then
+					v:FindFirstChild("FruitESP"):Destroy()
+				end
+
+				if autoCollect and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+					if (v.Position - plr.Character.HumanoidRootPart.Position).Magnitude < 50 then
+						firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
+						firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
+					end
+				end
+			end
+		end
+	end
+end)
+-- Sea 1 Farm Level Data
+local BF_LevelFarm = {
+	-- [level] = {islandCFrame, questName, mobName}
+	[1] = {CFrame.new(1061, 16, 1425), "BanditQuest1", "Bandit"},
+	[10] = {CFrame.new(1199, 16, 1650), "BanditQuest1", "Bandit"},
+	[15] = {CFrame.new(-1137, 16, 4328), "MonkeyQuest", "Monkey"},
+	[30] = {CFrame.new(-1603, 8, 4300), "GorillaQuest", "Gorilla"},
+	[60] = {CFrame.new(-5214, 7, 3987), "BuggyQuest1", "Pirate"},
+	[75] = {CFrame.new(-4880, 20, 3885), "BuggyQuest1", "Brute"},
+	[120] = {CFrame.new(-1212, 4, -2927), "YetiQuest", "Yeti"},
+	[150] = {CFrame.new(5560, 7, -439), "SkyQuest1", "Sky Bandit"},
+	[190] = {CFrame.new(5094, 27, -2141), "SkyQuest2", "Royal Squad"},
+	[210] = {CFrame.new(5315, 766, -2623), "SkyQuest2", "Royal Soldier"},
+	[250] = {CFrame.new(-4957, 300, -2810), "ColosseumQuest", "Gladiator"},
+	[275] = {CFrame.new(-5200, 300, -2860), "ColosseumQuest", "Toga Warrior"},
+	[300] = {CFrame.new(-390, 20, -2850), "MagmaQuest", "Military Soldier"},
+	[375] = {CFrame.new(-610, 70, -2890), "MagmaQuest", "Military Spy"},
+	[425] = {CFrame.new(6060, 5, -4900), "FishmanQuest", "Fishman Warrior"},
+	[450] = {CFrame.new(6175, 5, -4780), "FishmanQuest", "Fishman Commando"},
+	[525] = {CFrame.new(3900, 5, -1800), "BaroqueQuest", "Desert Officer"},
+	[625] = {CFrame.new(5090, 5, 4000), "SnowQuest", "Snow Bandit"},
+	[700] = {CFrame.new(5500, 5, 4200), "SnowQuest", "Snowman"},
+}
+
+-- Helper functions
+local function GetQuestInfo(lv)
+	local selected = nil
+	for req, data in pairs(BF_LevelFarm) do
+		if lv >= req then
+			selected = data
+		end
+	end
+	return selected
+end
+
+local function TweenTo(cf)
+	local root = plr.Character:WaitForChild("HumanoidRootPart")
+	local block = Instance.new("Part", workspace)
+	block.Anchored = true
+	block.Size = Vector3.new(8,1,8)
+	block.Position = root.Position - Vector3.new(0,3,0)
+	block.Transparency = 1
+	block.Name = "TweenBlock"
+	block.CanCollide = true
+
+	local weld = Instance.new("WeldConstraint", block)
+	weld.Part0 = block
+	weld.Part1 = root
+
+	local tween = ts:Create(root, TweenInfo.new((cf.Position - root.Position).Magnitude / 250, Enum.EasingStyle.Linear), {CFrame = cf})
+	tween:Play()
+	tween.Completed:Wait()
+
+	block:Destroy()
+end
+
+-- Main auto farm logic
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local lv = plr.Data.Level.Value
+			local info = GetQuestInfo(lv)
+			if info then
+				local root = plr.Character.HumanoidRootPart
+
+				-- Tween đến đảo
+				TweenTo(info[1])
+				task.wait(3)
+
+				-- Nhận nhiệm vụ nếu chưa có
+				if not plr.PlayerGui:FindFirstChild("QuestGUI") then
+					rep.Remotes.CommE:FireServer("StartQuest", info[2], 1)
+					task.wait(1)
+				end
+
+				-- Tìm quái
+				for _,mob in pairs(workspace.Enemies:GetChildren()) do
+					if mob.Name == info[3] and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+						local mobRoot = mob.HumanoidRootPart
+						local block = Instance.new("Part", mob)
+						block.Anchored = true
+						block.Size = Vector3.new(8,1,8)
+						block.Position = mobRoot.Position + Vector3.new(0,6,0)
+						block.Transparency = 1
+						block.Name = "FarmBlock"
+						block.CanCollide = true
+
+						local function followTween()
+							while autoFarm and mob and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 do
+								local targetPos = mobRoot.Position + Vector3.new(0, 7, 0)
+								local speed = (plr.Character.HumanoidRootPart.Position - targetPos).Magnitude / 250
+								ts:Create(root, TweenInfo.new(speed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetPos)}):Play()
+								task.wait(speed)
+							end
+						end
+						followTween()
+						block:Destroy()
+					end
+				end
+
+				-- Nếu hoàn thành nhiệm vụ thì mới quay về nhận tiếp
+				if not plr.PlayerGui:FindFirstChild("QuestGUI") then
+					task.wait(1)
+					rep.Remotes.CommE:FireServer("StartQuest", info[2], 1)
+				end
+			end
+		end
+	end
+end)
+-- Xóa GUI cũ nếu có
+for _,v in pairs(game.CoreGui:GetChildren()) do
+	if v.Name == "BFAuto" then v:Destroy() end
+end
+
+-- GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "BFAuto"
+gui.ResetOnSpawn = false
+
+-- Toggle Hiện/Ẩn GUI
+local toggleBtn = Instance.new("TextButton", gui)
+toggleBtn.Size = UDim2.new(0, 120, 0, 40)
+toggleBtn.Position = UDim2.new(0, 10, 0.8, 0)
+toggleBtn.Text = "Hiện/Ẩn GUI"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 toggleBtn.TextColor3 = Color3.new(1, 1, 1)
 toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.TextSize = 14
 Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
 
-local gui = Instance.new("Frame", mainGui)
-gui.Size = UDim2.new(0.6, 0, 0.6, 0)
-gui.Position = UDim2.new(0.2, 0, 0.2, 0)
-gui.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-gui.BorderSizePixel = 0
-gui.Active = true
-gui.Draggable = true
-Instance.new("UICorner", gui).CornerRadius = UDim.new(0, 14)
+-- GUI chính
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0.6, 0, 0.6, 0) -- to 60% màn hình
+frame.Position = UDim2.new(0.2, 0, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 
 toggleBtn.MouseButton1Click:Connect(function()
-    gui.Visible = not gui.Visible
+	frame.Visible = not frame.Visible
 end)
 
--- Nút chức năng
+-- Tạo Button
 local function CreateButton(text, posY)
-	local btn = Instance.new("TextButton", gui)
-	btn.Size = UDim2.new(1, -20, 0, 30)
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(1, -20, 0, 36)
 	btn.Position = UDim2.new(0, 10, 0, posY)
 	btn.Text = text
-	btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+	btn.BackgroundColor3 = Color3.fromRGB(60, 100, 160)
 	btn.TextColor3 = Color3.new(1, 1, 1)
 	btn.Font = Enum.Font.Gotham
 	btn.TextSize = 14
@@ -750,12 +912,15 @@ local function CreateButton(text, posY)
 	return btn
 end
 
+-- Các Button
 local btnFarm = CreateButton("Auto Farm: OFF", 10)
-local btnESP = CreateButton("ESP Người Chơi: OFF", 50)
-local btnFruitESP = CreateButton("ESP Trái: OFF", 90)
-local btnCollect = CreateButton("Auto Collect Trái: OFF", 130)
+local btnESP = CreateButton("ESP Người Chơi: OFF", 55)
+local btnFruitESP = CreateButton("ESP Trái: OFF", 100)
+local btnCollect = CreateButton("Auto Nhặt Trái: OFF", 145)
+local btnHaki = CreateButton("Auto Haki: ON", 190)
 
-local autoFarm, espOn, fruitESPOn, autoCollect = false, false, false, false
+-- Trạng thái
+local autoFarm, espOn, fruitESPOn, autoCollect, autoHaki = false, false, false, false, true
 
 btnFarm.MouseButton1Click:Connect(function()
 	autoFarm = not autoFarm
@@ -774,93 +939,1948 @@ end)
 
 btnCollect.MouseButton1Click:Connect(function()
 	autoCollect = not autoCollect
-	btnCollect.Text = autoCollect and "Auto Collect Trái: ON" or "Auto Collect Trái: OFF"
+	btnCollect.Text = autoCollect and "Auto Nhặt Trái: ON" or "Auto Nhặt Trái: OFF"
 end)
 
--- Auto Click
-local vim = game:GetService("VirtualInputManager")
+btnHaki.MouseButton1Click:Connect(function()
+	autoHaki = not autoHaki
+	btnHaki.Text = autoHaki and "Auto Haki: " .. (autoHaki and "ON" or "OFF")
+end)
+local plr = game.Players.LocalPlayer
+local rs = game:GetService("RunService")
+local rep = game:GetService("ReplicatedStorage")
+
+-- AUTO HAKI
 task.spawn(function()
-	while task.wait(0.25) do
-		if autoFarm then
-			vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-			task.wait()
-			vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+	while task.wait(5) do
+		if autoHaki then
+			pcall(function()
+				rep.Remotes.CommE:FireServer("Buso")
+			end)
 		end
 	end
 end)
 
--- Auto Haki bật vĩnh viễn
+-- TẠO ESP
+local function CreateESP(obj, text, color, tagName)
+	local gui = Instance.new("BillboardGui", obj)
+	gui.Name = tagName
+	gui.Size = UDim2.new(0, 100, 0, 40)
+	gui.StudsOffset = Vector3.new(0, 2, 0)
+	gui.AlwaysOnTop = true
+
+	local lbl = Instance.new("TextLabel", gui)
+	lbl.Size = UDim2.new(1, 0, 1, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = text
+	lbl.TextColor3 = color
+	lbl.TextSize = 10
+	lbl.Font = Enum.Font.GothamSemibold
+end
+
+-- ESP + AUTO COLLECT
+task.spawn(function()
+	while task.wait(1) do
+		-- ESP NGƯỜI CHƠI
+		for _, p in pairs(game.Players:GetPlayers()) do
+			if p ~= plr and p.Character and p.Character:FindFirstChild("Head") then
+				local head = p.Character.Head
+				if espOn and not head:FindFirstChild("PlayerESP") then
+					CreateESP(head, p.Name, Color3.fromRGB(0, 255, 0), "PlayerESP")
+				elseif not espOn and head:FindFirstChild("PlayerESP") then
+					head:FindFirstChild("PlayerESP"):Destroy()
+				end
+			end
+		end
+
+		-- ESP TRÁI + AUTO COLLECT
+		for _, v in pairs(workspace:GetChildren()) do
+			if v:IsA("Tool") and v:FindFirstChild("Handle") then
+				if fruitESPOn and not v:FindFirstChild("FruitESP") then
+					CreateESP(v.Handle, v.Name, Color3.fromRGB(255, 0, 0), "FruitESP")
+				elseif not fruitESPOn and v:FindFirstChild("FruitESP") then
+					v:FindFirstChild("FruitESP"):Destroy()
+				end
+				if autoCollect and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+					local hrp = plr.Character.HumanoidRootPart
+					if (v.Handle.Position - hrp.Position).Magnitude < 50 then
+						firetouchinterest(hrp, v.Handle, 0)
+						firetouchinterest(hrp, v.Handle, 1)
+					end
+				end
+			end
+		end
+	end
+end)
+local function CreatePlatform()
+	local part = Instance.new("Part")
+	part.Anchored = true
+	part.Size = Vector3.new(10, 1, 10)
+	part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+	part.Transparency = 1
+	part.Name = "AntiFall"
+	part.CanCollide = true
+	part.Parent = workspace
+	return part
+end
+
+local currentMob = nil
+local farming = false
+local platform = nil
+local currentQuest = nil
+
+local function GetMob()
+	for _,v in pairs(workspace.Enemies:GetChildren()) do
+		if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+			return v
+		end
+	end
+	return nil
+end
+
+local function GetQuest()
+	local qFolder = plr.PlayerGui:FindFirstChild("QuestGUI")
+	if qFolder and qFolder:FindFirstChild("Enabled") and qFolder.Enabled == true then
+		return true
+	end
+	return false
+end
+
+task.spawn(function()
+	while task.wait(0.2) do
+		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local hrp = plr.Character.HumanoidRootPart
+			-- Không auto equip nữa
+			-- Đảm bảo quest hiện tại còn, nếu không thì quay về NPC
+			if not GetQuest() then
+				rep.Remotes.CommE:FireServer("StartQuest", "BanditQuest1", 1) -- Tùy chỉnh ID quest
+				task.wait(1.5)
+			end
+
+			currentMob = GetMob()
+			if currentMob then
+				farming = true
+				local mobHRP = currentMob:FindFirstChild("HumanoidRootPart")
+				if mobHRP then
+					if not workspace:FindFirstChild("AntiFall") then
+						platform = CreatePlatform()
+					end
+					local goal = {CFrame = mobHRP.CFrame * CFrame.new(0, 15, 0)}
+					ts:Create(hrp, TweenInfo.new(0.4, Enum.EasingStyle.Linear), goal):Play()
+					-- Tăng hitbox
+					for _,v in ipairs(currentMob:GetChildren()) do
+						if v:IsA("BasePart") then
+							v.Size = Vector3.new(60,60,60)
+							v.Transparency = 0.2
+						end
+					end
+				end
+			else
+				farming = false
+			end
+		else
+			if workspace:FindFirstChild("AntiFall") then
+				workspace.AntiFall:Destroy()
+			end
+		end
+	end
+end)
+local level = plr.Data.Level.Value
+
+getgenv().BF_LevelFarm = {
+    [1] = {Name = "Bandit", Quest = "BanditQuest1", Mon = "Bandit", Pos = Vector3.new(1060, 17, 1547)},
+    [10] = {Name = "Monkey", Quest = "JungleQuest", Mon = "Monkey", Pos = Vector3.new(-1600, 36, 152)},
+    [15] = {Name = "Gorilla", Quest = "JungleQuest", Mon = "Gorilla", Pos = Vector3.new(-1200, 40, -450)},
+    [30] = {Name = "Pirate", Quest = "BuggyQuest1", Mon = "Pirate", Pos = Vector3.new(-1140, 15, 3825)},
+    [40] = {Name = "Brute", Quest = "BuggyQuest1", Mon = "Brute", Pos = Vector3.new(-1140, 15, 3825)},
+    [55] = {Name = "Desert Bandit", Quest = "DesertQuest", Mon = "Desert Bandit", Pos = Vector3.new(932, 7, 4484)},
+    [70] = {Name = "Desert Officer", Quest = "DesertQuest", Mon = "Desert Officer", Pos = Vector3.new(1572, 10, 4373)},
+    [90] = {Name = "Snow Bandit", Quest = "SnowQuest", Mon = "Snow Bandit", Pos = Vector3.new(1200, 20, -4700)},
+    [105] = {Name = "Snowman", Quest = "SnowQuest", Mon = "Snowman", Pos = Vector3.new(1475, 28, -5600)},
+    [120] = {Name = "Chief Petty Officer", Quest = "MarineQuest2", Mon = "Chief Petty Officer", Pos = Vector3.new(-5000, 20, 4300)},
+    [150] = {Name = "Sky Bandit", Quest = "SkyQuest", Mon = "Sky Bandit", Pos = Vector3.new(-500, 200, -3000)},
+    [175] = {Name = "Dark Master", Quest = "SkyQuest", Mon = "Dark Master", Pos = Vector3.new(-500, 250, -2800)},
+    [190] = {Name = "Prisoner", Quest = "PrisonerQuest", Mon = "Prisoner", Pos = Vector3.new(5000, 10, 4600)},
+    [210] = {Name = "Swan Pirate", Quest = "PrisonerQuest", Mon = "Swan Pirate", Pos = Vector3.new(5200, 10, 4700)},
+    [250] = {Name = "Toga Warrior", Quest = "ColosseumQuest", Mon = "Toga Warrior", Pos = Vector3.new(-1575, 8, -3000)},
+    [275] = {Name = "Gladiator", Quest = "ColosseumQuest", Mon = "Gladiator", Pos = Vector3.new(-1450, 7, -3300)},
+    [300] = {Name = "Military Soldier", Quest = "MagmaQuest", Mon = "Military Soldier", Pos = Vector3.new(-5400, 11, 5000)},
+    [325] = {Name = "Military Spy", Quest = "MagmaQuest", Mon = "Military Spy", Pos = Vector3.new(-5800, 10, 5300)},
+    [350] = {Name = "Fishman Warrior", Quest = "FishmanQuest", Mon = "Fishman Warrior", Pos = Vector3.new(6100, 20, -1400)},
+    [375] = {Name = "Fishman Commando", Quest = "FishmanQuest", Mon = "Fishman Commando", Pos = Vector3.new(6400, 30, -1700)},
+    [400] = {Name = "Wysper", Quest = "SkyExp1Quest", Mon = "Wysper", Pos = Vector3.new(-7850, 560, -600)},
+    [425] = {Name = "Royal Squad", Quest = "SkyExp1Quest", Mon = "Royal Squad", Pos = Vector3.new(-7900, 550, -1200)},
+    [450] = {Name = "Royal Soldier", Quest = "SkyExp2Quest", Mon = "Royal Soldier", Pos = Vector3.new(-8000, 600, -1300)},
+    [475] = {Name = "Galley Pirate", Quest = "FountainQuest", Mon = "Galley Pirate", Pos = Vector3.new(5400, 90, 3900)},
+    [500] = {Name = "Galley Captain", Quest = "FountainQuest", Mon = "Galley Captain", Pos = Vector3.new(5600, 90, 4200)},
+    [625] = {Name = "Ice Admiral", Quest = "IceQuest", Mon = "Ice Admiral", Pos = Vector3.new(5000, 10, -5000)},
+    [700] = {Name = "???", Quest = "???", Mon = "???", Pos = Vector3.new(0,0,0)}
+}
+
+local function GetQuestInfo()
+	local current = nil
+	for reqLevel, info in pairs(getgenv().BF_LevelFarm) do
+		if level >= reqLevel then
+			current = info
+		end
+	end
+	return current
+end
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local function TweenTo(pos)
+	local char = plr.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+	local goal = {CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))}
+	local tween = ts:Create(char.HumanoidRootPart, TweenInfo.new((char.HumanoidRootPart.Position - pos).Magnitude / 300, Enum.EasingStyle.Linear), goal)
+	tween:Play()
+
+	local part = Instance.new("Part", workspace)
+	part.Anchored = true
+	part.CanCollide = true
+	part.Size = Vector3.new(8, 1, 8)
+	part.CFrame = CFrame.new(char.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0))
+	part.Transparency = 1
+	part.Name = "BF_Floor"
+	tween.Completed:Wait()
+	part:Destroy()
+end
+
+local function GetMob(name)
+	for _, v in pairs(workspace.Enemies:GetChildren()) do
+		if v.Name == name and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+			return v
+		end
+	end
+end
+
+local function GetQuestPart(quest)
+	for _, v in pairs(workspace:GetDescendants()) do
+		if v:IsA("ClickDetector") and v.Parent and v.Parent.Name == "Head" and v.Parent.Parent:FindFirstChild("HumanoidRootPart") and v.Parent.Parent.Name:lower():find("quest") then
+			if v.Parent.Parent:FindFirstChild("Name") and v.Parent.Parent.Name:find(quest) then
+				return v.Parent.Parent.HumanoidRootPart
+			end
+		end
+	end
+end
+
+local function DoQuest()
+	local info = GetQuestInfo()
+	if not info then return end
+	local npc = GetQuestPart(info.Quest)
+	if not npc then return end
+
+	-- Check quest status
+	if not plr.PlayerGui:FindFirstChild("QuestGUI") then
+		TweenTo(info.Pos)
+		task.wait(3)
+		rep.Remotes.CommF_:InvokeServer("StartQuest", info.Quest, 1)
+		task.wait(1)
+	end
+end
+
+local function AttackLoop()
+	local info = GetQuestInfo()
+	if not info then return end
+
+	while autoFarm and plr.PlayerGui:FindFirstChild("QuestGUI") do
+		local mob = GetMob(info.Mon)
+		if mob then
+			local hrp = mob:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local char = plr.Character
+				char.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
+				for _,v in ipairs(mob:GetChildren()) do
+					if v:IsA("BasePart") then
+						v.Size = Vector3.new(60,60,60)
+						v.Transparency = 0.2
+					end
+				end
+				VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,0)
+				task.wait(0.1)
+				VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,0)
+			end
+		else
+			task.wait(1)
+		end
+	end
+end
+
+-- Main Farm Loop
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm then
+			if not plr.PlayerGui:FindFirstChild("QuestGUI") then
+				DoQuest()
+			else
+				AttackLoop()
+			end
+		end
+	end
+end)
+-- Kiểm tra và duy trì block ảo dưới chân khi tween
+local function maintainBlockUnder()
+	local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	local existingBlock = root:FindFirstChild("AntiFallBlock")
+	if not existingBlock then
+		local part = Instance.new("Part")
+		part.Name = "AntiFallBlock"
+		part.Size = Vector3.new(5, 1, 5)
+		part.Anchored = true
+		part.CanCollide = true
+		part.Transparency = 1
+		part.Position = root.Position - Vector3.new(0, 4, 0)
+		part.Parent = root
+	end
+end
+
+-- Tween mượt tới mục tiêu với block dưới chân
+local function smoothTweenTo(pos)
+	local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local tweenInfo = TweenInfo.new((root.Position - pos).Magnitude / 100, Enum.EasingStyle.Linear)
+	local tween = ts:Create(root, tweenInfo, {CFrame = CFrame.new(pos)})
+	tween:Play()
+
+	-- Giữ block dưới chân
+	task.spawn(function()
+		while tween.PlaybackState == Enum.PlaybackState.Playing do
+			maintainBlockUnder()
+			task.wait(0.1)
+		end
+	end)
+end
+-- Hàm kiểm tra có đang trong nhiệm vụ không
+local function HasQuest()
+	local plrData = plr:FindFirstChild("PlayerGui"):FindFirstChild("Main"):FindFirstChild("Quest")
+	if plrData and plrData.Visible then
+		return true
+	end
+	return false
+end
+
+-- Tự động nhận nhiệm vụ khi chưa có quest
+local function AutoQuest(npcName, questName, levelRequired)
+	local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not root or not autoFarm then return end
+	if HasQuest() then return end
+
+	local npc = workspace:FindFirstChild(npcName)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		smoothTweenTo(npc.HumanoidRootPart.Position + Vector3.new(0, 3, 0))
+		task.wait(2.5)
+		rep.Remotes.CommE:InvokeServer("StartQuest", questName, 1)
+	end
+end
+
+-- Tự động di chuyển đến quái
+local function AutoMoveToMob(mobName)
+	for _, mob in pairs(workspace.Enemies:GetChildren()) do
+		if mob.Name == mobName and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+			repeat
+				smoothTweenTo(mob.HumanoidRootPart.Position + Vector3.new(0, 15, 0))
+				task.wait(0.3)
+			until not mob or not mob:FindFirstChild("Humanoid") or mob.Humanoid.Health <= 0 or not autoFarm
+			break
+		end
+	end
+end
+-- Hàm tạo block ảo dưới chân tránh rớt biển khi tween
+local function CreateFootBlock()
+	if not workspace:FindFirstChild("FootPlatform") then
+		local part = Instance.new("Part", workspace)
+		part.Name = "FootPlatform"
+		part.Anchored = true
+		part.Size = Vector3.new(10,1,10)
+		part.CanCollide = true
+		part.Transparency = 1
+	end
+end
+
+-- Cập nhật vị trí block ảo theo player
+task.spawn(function()
+	while task.wait(0.1) do
+		if autoFarm then
+			local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+			local plat = workspace:FindFirstChild("FootPlatform")
+			if root and plat then
+				plat.Position = Vector3.new(root.Position.X, root.Position.Y - 3.5, root.Position.Z)
+			end
+		elseif workspace:FindFirstChild("FootPlatform") then
+			workspace.FootPlatform:Destroy()
+		end
+	end
+end)
+-- Danh sách kiếm & võ
+local SwordList = {
+    "Katana", "Cutlass", "Iron Mace", "Pipe", "Triple Katana", "Dual Katana", "Shark Blade",
+    "Bisento", "Soul Cane", "Trident", "Gravity Cane", "Longsword", "Midnight Blade",
+    "Saber", "Shisui", "Wando", "Yama", "Tushita", "Buddy Sword", "Canvander", "Rengoku"
+}
+
+local MeleeList = {
+    "Combat", "Black Leg", "Electro", "Fishman Karate", "Dragon Claw", "Superhuman",
+    "Death Step", "Sharkman Karate", "Electric Claw", "Dragon Talon", "Godhuman"
+}
+
+-- Hàm Auto Equip vũ khí
+local function AutoEquipWeapon()
+	if not autoFarm then return end
+	local char = plr.Character
+	if not char then return end
+	local inv = plr.Backpack:GetChildren()
+
+	for _,tool in pairs(inv) do
+		if tool:IsA("Tool") then
+			for _,s in pairs(SwordList) do
+				if tool.Name == s then
+					tool.Parent = char
+					return
+				end
+			end
+			for _,m in pairs(MeleeList) do
+				if tool.Name == m then
+					tool.Parent = char
+					return
+				end
+			end
+		end
+	end
+end
+
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm then
+			AutoEquipWeapon()
+		end
+	end
+end)
+-- PHẦN 27: AUTO EQUIP + BLOCK ẢO + GHIM QUÁI + CHỐNG ĐÁNH NHẦM
+
+-- Danh sách tên kiếm và võ
+local allWeapons = {
+	"Saber", "Shisui", "Yama", "Wando", "Midnight Blade", "Rengoku",
+	"Buddy Sword", "Canvander", "Spikey Trident", "Dark Blade",
+	"Electric Claw", "Dragon Talon", "Superhuman", "Death Step", "Sharkman Karate"
+}
+
+-- Auto Equip khi bật toggle
+local function EquipBestWeapon()
+	for _, item in pairs(plr.Backpack:GetChildren()) do
+		if table.find(allWeapons, item.Name) then
+			plr.Character.Humanoid:EquipTool(item)
+			break
+		end
+	end
+end
+
+-- Tạo block ảo dưới chân người chơi
+local function CreateFootBlock()
+	if workspace:FindFirstChild("TweenBlock_"..plr.Name) then
+		workspace:FindFirstChild("TweenBlock_"..plr.Name):Destroy()
+	end
+	local part = Instance.new("Part", workspace)
+	part.Name = "TweenBlock_"..plr.Name
+	part.Size = Vector3.new(6,1,6)
+	part.Anchored = true
+	part.CanCollide = true
+	part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0,3.5,0)
+	part.Transparency = 0.2
+	part.BrickColor = BrickColor.new("Bright yellow")
+end
+
+-- Giữ quái đứng yên bằng Anchored + Hitbox
+local function AnchorMob(mob)
+	for _,v in ipairs(mob:GetChildren()) do
+		if v:IsA("BasePart") then
+			v.Anchored = true
+			v.Size = Vector3.new(60,60,60)
+			v.Transparency = 0.2
+		end
+	end
+end
+
+-- Tự ghim lên đầu quái liên tục
+local function FollowMob(mob)
+	local hrp = plr.Character.HumanoidRootPart
+	local mobPart = mob:FindFirstChild("HumanoidRootPart")
+	if not mobPart then return end
+
+	local goalPos = mobPart.Position + Vector3.new(0, 10, 0)
+	local tween = ts:Create(hrp, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {CFrame = CFrame.new(goalPos)})
+	tween:Play()
+end
+
+-- Auto Farm Main Loop
+task.spawn(function()
+	while task.wait(0.2) do
+		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local mob = FindClosestMob()
+			if mob and mob:FindFirstChild("HumanoidRootPart") then
+				-- Equip nếu có toggle
+				EquipBestWeapon()
+				-- Tạo block và giữ quái
+				CreateFootBlock()
+				AnchorMob(mob)
+				-- Theo quái
+				FollowMob(mob)
+			end
+		end
+	end
+end)
+-- PHẦN 28: TỰ NHẬN NHIỆM VỤ KHI CHƯA CÓ – KHÔNG NHẬN LIÊN TỤC
+
+local function HasQuest()
+	local plrGui = plr.PlayerGui:FindFirstChild("Main")
+	if not plrGui then return false end
+	return plrGui:FindFirstChild("Quest") and plrGui.Quest.Visible
+end
+
+local function GetMobKillCount()
+	local questFrame = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest")
+	if questFrame and questFrame.Visible and questFrame:FindFirstChild("Title") then
+		local titleText = questFrame.Title.Text
+		local count = string.match(titleText, "%d+/%d+")
+		if count then
+			local current, max = count:match("(%d+)%/(%d+)")
+			return tonumber(current), tonumber(max)
+		end
+	end
+	return nil, nil
+end
+
+local function GetQuestInfo()
+	local level = plr.Data.Level.Value
+	for _,v in pairs(getgenv().BF_LevelFarm) do
+		if level >= v.LevelMin and level <= v.LevelMax then
+			return v
+		end
+	end
+	return nil
+end
+
+local function RequestQuest()
+	local info = GetQuestInfo()
+	if not info then return end
+
+	local npc = workspace:FindFirstChild(info.QuestNPC)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		local hrp = plr.Character:WaitForChild("HumanoidRootPart")
+		-- Tween tới NPC
+		local tween = ts:Create(hrp, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = npc.HumanoidRootPart.CFrame + Vector3.new(0, 4, 0)})
+		tween:Play()
+		tween.Completed:Wait()
+
+		-- Gửi yêu cầu nhận nhiệm vụ
+		rep.Remotes.CommE:InvokeServer("StartQuest", info.QuestName, info.QuestLevel)
+	end
+end
+
+-- Auto nhận quest nếu chưa có
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm then
+			local has = HasQuest()
+			if not has then
+				RequestQuest()
+			else
+				local cur, max = GetMobKillCount()
+				if cur and max and cur >= max then
+					RequestQuest()
+				end
+			end
+		end
+	end
+end)
+-- PHẦN 29: DỮ LIỆU LEVEL – FARM TOÀN BỘ SEA 1
+
+getgenv().BF_LevelFarm = {
+    {
+        LevelMin = 1,
+        LevelMax = 9,
+        Mob = "Bandit",
+        QuestName = "BanditQuest1",
+        QuestLevel = 1,
+        QuestNPC = "BanditQuest1",
+        MobCFrame = CFrame.new(1150, 17, 1632)
+    },
+    {
+        LevelMin = 10,
+        LevelMax = 14,
+        Mob = "Monkey",
+        QuestName = "JungleQuest",
+        QuestLevel = 1,
+        QuestNPC = "JungleQuest",
+        MobCFrame = CFrame.new(-1600, 36, 145)
+    },
+    {
+        LevelMin = 15,
+        LevelMax = 29,
+        Mob = "Gorilla",
+        QuestName = "JungleQuest",
+        QuestLevel = 2,
+        QuestNPC = "JungleQuest",
+        MobCFrame = CFrame.new(-1120, 40, -525)
+    },
+    {
+        LevelMin = 30,
+        LevelMax = 39,
+        Mob = "Pirate",
+        QuestName = "BuggyQuest1",
+        QuestLevel = 1,
+        QuestNPC = "BuggyQuest1",
+        MobCFrame = CFrame.new(-1122, 13, 3937)
+    },
+    {
+        LevelMin = 40,
+        LevelMax = 59,
+        Mob = "Brute",
+        QuestName = "BuggyQuest1",
+        QuestLevel = 2,
+        QuestNPC = "BuggyQuest1",
+        MobCFrame = CFrame.new(-1244, 18, 3892)
+    },
+    {
+        LevelMin = 60,
+        LevelMax = 74,
+        Mob = "Desert Bandit",
+        QuestName = "DesertQuest",
+        QuestLevel = 1,
+        QuestNPC = "DesertQuest",
+        MobCFrame = CFrame.new(932, 7, 4483)
+    },
+    {
+        LevelMin = 75,
+        LevelMax = 89,
+        Mob = "Desert Officer",
+        QuestName = "DesertQuest",
+        QuestLevel = 2,
+        QuestNPC = "DesertQuest",
+        MobCFrame = CFrame.new(1572, 10, 4373)
+    },
+    {
+        LevelMin = 90,
+        LevelMax = 99,
+        Mob = "Snow Bandit",
+        QuestName = "SnowQuest",
+        QuestLevel = 1,
+        QuestNPC = "SnowQuest",
+        MobCFrame = CFrame.new(1396, 87, -1297)
+    },
+    {
+        LevelMin = 100,
+        LevelMax = 119,
+        Mob = "Snowman",
+        QuestName = "SnowQuest",
+        QuestLevel = 2,
+        QuestNPC = "SnowQuest",
+        MobCFrame = CFrame.new(1291, 89, -1462)
+    },
+    {
+        LevelMin = 120,
+        LevelMax = 149,
+        Mob = "Chief Petty Officer",
+        QuestName = "MarineQuest2",
+        QuestLevel = 1,
+        QuestNPC = "MarineQuest2",
+        MobCFrame = CFrame.new(-4855, 20, 4307)
+    },
+    -- 🟨 Bạn có thể thêm các đảo còn lạ⁰i ở Sea 1 tương tự ở đây
+}
+-- PHẦN 30: TIẾP TỤC FARM SEA 1 – SKY ISLAND + PRISON
+
+table.insert(getgenv().BF_LevelFarm, {
+    LevelMin = 150,
+    LevelMax = 174,
+    Mob = "Sky Bandit",
+    QuestName = "SkyQuest",
+    QuestLevel = 1,
+    QuestNPC = "SkyQuest",
+    MobCFrame = CFrame.new(-4961, 278, -2626)
+})
+
+table.insert(getgenv().BF_LevelFarm, {
+    LevelMin = 175,
+    LevelMax = 189,
+    Mob = "Dark Master",
+    QuestName = "SkyQuest",
+    QuestLevel = 2,
+    QuestNPC = "SkyQuest",
+    MobCFrame = CFrame.new(-5250, 389, -2339)
+})
+
+table.insert(getgenv().BF_LevelFarm, {
+    LevelMin = 190,
+    LevelMax = 209,
+    Mob = "Prisoner",
+    QuestName = "PrisonerQuest",
+    QuestLevel = 1,
+    QuestNPC = "PrisonerQuest",
+    MobCFrame = CFrame.new(4875, 5, 738)
+})
+
+table.insert(getgenv().BF_LevelFarm, {
+    LevelMin = 210,
+    LevelMax = 224,
+    Mob = "Chief Warden",
+    QuestName = "PrisonerQuest",
+    QuestLevel = 2,
+    QuestNPC = "PrisonerQuest",
+    MobCFrame = CFrame.new(5011, 5, 716)
+})
+
+table.insert(getgenv().BF_LevelFarm, {
+    LevelMin = 225,
+    LevelMax = 249,
+    Mob = "Warden",
+    QuestName = "WardenQuest",
+    QuestLevel = 1,
+    QuestNPC = "WardenQuest",
+    MobCFrame = CFrame.new(5047, 5, 742)
+})
+-- Hàm tìm thông tin nhiệm vụ phù hợp với level
+local function GetQuestByLevel()
+	for _, v in pairs(getgenv().BF_LevelFarm) do
+		if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local level = plr.Data.Level.Value
+			if level >= v.LevelMin and level <= v.LevelMax then
+				return v
+			end
+		end
+	end
+	return nil
+end
+
+-- Hàm di chuyển tới mob bằng Tween và tạo block ảo dưới chân
+local function TweenToMobPos(cf)
+	local root = plr.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	-- Tạo block ảo dưới chân khi bay
+	local ghostBlock = Instance.new("Part", workspace)
+	ghostBlock.Size = Vector3.new(10, 1, 10)
+	ghostBlock.Anchored = true
+	ghostBlock.Transparency = 1
+	ghostBlock.CanCollide = true
+	ghostBlock.Position = cf.Position - Vector3.new(0, 3, 0)
+	ghostBlock.Name = "TweenBlock_"..tostring(math.random(1000,9999))
+
+	-- Tween tới vị trí mob
+	local info = TweenInfo.new((root.Position - cf.Position).Magnitude / 150, Enum.EasingStyle.Linear)
+	local tween = ts:Create(root, info, {CFrame = cf + Vector3.new(0, 8, 0)})
+	tween:Play()
+	tween.Completed:Wait()
+
+	-- Dọn block ảo
+	task.delay(2, function()
+		if ghostBlock and ghostBlock.Parent then
+			ghostBlock:Destroy()
+		end
+	end)
+end
+-- Biến lưu nhiệm vụ hiện tại
+local currentQuest = nil
+local questFinished = true
+
+-- Hàm kiểm tra đã có nhiệm vụ chưa
+local function HasQuest()
+	return plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main.Quest.Visible
+end
+
+-- Hàm bắt đầu nhiệm vụ nếu chưa có
+local function StartQuest()
+	if HasQuest() or not currentQuest then return end
+	rep.Remotes.CommE:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel)
+	task.wait(0.2)
+end
+
+-- Hàm tìm và farm quái
+local function FarmQuest()
+	if not currentQuest then
+		currentQuest = GetQuestByLevel()
+		questFinished = true
+	end
+	if not currentQuest then return end
+
+	if not HasQuest() and questFinished then
+		StartQuest()
+		questFinished = false
+	end
+
+	-- Tìm quái
+	local mobs = workspace.Enemies:GetChildren()
+	for _, mob in pairs(mobs) do
+		if mob.Name == currentQuest.Mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+
+			-- Đè quái đứng yên (anti-văng)
+			if mob:FindFirstChild("HumanoidRootPart") then
+				mob.HumanoidRootPart.Anchored = true
+			end
+
+			-- Ghim tween liên tục lên đầu quái
+			while mob and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and autoFarm do
+				TweenToMobPos(mob.HumanoidRootPart.CFrame)
+				wait(0.2)
+			end
+
+			if mob.Humanoid.Health <= 0 then
+				task.wait(0.5)
+			end
+		end
+	end
+
+	-- Nếu không còn quái thì hoàn thành
+	if HasQuest() then
+		local text = plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
+		if string.find(text, currentQuest.Mob) and string.find(text, "Completed") then
+			questFinished = true
+		end
+	end
+end
+
+-- Luồng farm liên tục
+task.spawn(function()
+	while task.wait(1) do
+		if autoFarm then
+			pcall(FarmQuest)
+		end
+	end
+end)
+--[[
+AUTO FARM BLOX FRUITS - FULL SEA 1 + HAKI + ESP + AUTO COLLECT FRUIT + GUI TOGGLE
+]]
+
+repeat task.wait() until game:IsLoaded()
+if game.CoreGui:FindFirstChild("BFAuto") then game.CoreGui.BFAuto:Destroy() end
+
+local plr = game.Players.LocalPlayer
+local rs = game:GetService("RunService")
+local ts = game:GetService("TweenService")
+local vim = game:GetService("VirtualInputManager")
 local rep = game:GetService("ReplicatedStorage")
+
+-- GUI TOGGLE
+local mainGui = Instance.new("ScreenGui", game.CoreGui)
+mainGui.Name = "BFAuto"
+
+local toggleBtn = Instance.new("TextButton", mainGui)
+toggleBtn.Size = UDim2.new(0, 100, 0, 30)
+toggleBtn.Position = UDim2.new(0, 10, 0.85, 0)
+toggleBtn.Text = "Toggle GUI"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleBtn.TextColor3 = Color3.new(1, 1, 1)
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 14
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
+
+local gui = Instance.new("Frame", mainGui)
+gui.Size = UDim2.new(0, 220, 0, 220)
+gui.Position = UDim2.new(0.05, 0, 0.2, 0)
+gui.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+gui.BorderSizePixel = 0
+gui.Active = true
+gui.Draggable = true
+Instance.new("UICorner", gui).CornerRadius = UDim.new(0, 10)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    gui.Visible = not gui.Visible
+end)
+local offset = Vector3.new(0, 8, 0)
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+    local tween = ts:Create(hrp, tweenInfo, {CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(offset)})
+    tween:Play()
+end
+
+-- Hàm farm enemy hiện tại
+function FarmEnemy(enemy)
+    repeat
+        if not autoFarm or not enemy or not enemy.Parent then break end
+        StickToEnemy(enemy)
+        task.wait(0.3)
+    until not enemy or not enemy.Parent or enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health <= 0
+end
+
+-- Tạo block ảo dưới chân khi tween để không rơi xuống biển
+function CreateFakePlatform()
+    local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local part = Instance.new("Part", workspace)
+    part.Anchored = true
+    part.CanCollide = true
+    part.Transparency = 1
+    part.Size = Vector3.new(10, 1, 10)
+    part.Position = hrp.Position - Vector3.new(0, 3.5, 0)
+    part.Name = "BF_FakePlatform"
+    return part
+end
+-- Xóa block ảo dưới chân khi tắt farm
+function RemoveFakePlatform()
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:IsA("Part") and v.Name == "BF_FakePlatform" then
+            v:Destroy()
+        end
+    end
+end
+
+-- Hàm chính Auto Farm
+task.spawn(function()
+    while task.wait(1) do
+        if autoFarm then
+            local curLevel = plr.Data.Level.Value
+            local island = GetIslandFromLevel(curLevel)
+            if island then
+                local npc = GetQuestFromIsland(island)
+                if not HasQuest() then
+                    RemoveFakePlatform()
+                    TweenTo(island.Position)
+                    CreateFakePlatform()
+                    task.wait(3)
+                    AcceptQuest(npc)
+                end
+
+                local enemy = GetClosestEnemy(island)
+                if enemy then
+                    FarmEnemy(enemy)
+                end
+
+                if IsQuestDone() then
+                    RemoveFakePlatform()
+                    TweenTo(npc.Position + Vector3.new(0, 3, 0))
+                    task.wait(1)
+                    autoFarm = true
+                end
+            end
+        else
+            RemoveFakePlatform()
+        end
+    end
+end)
+-- Tự động tạo block ảo dưới chân để tránh rớt biển
+function CreateFakePlatform()
+    local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+    if root and not workspace:FindFirstChild("BF_FakePlatform") then
+        local block = Instance.new("Part", workspace)
+        block.Name = "BF_FakePlatform"
+        block.Size = Vector3.new(10, 1, 10)
+        block.Anchored = true
+        block.CanCollide = true
+        block.Transparency = 0.2
+        block.Position = root.Position - Vector3.new(0, 4, 0)
+        block.Material = Enum.Material.ForceField
+    end
+end
+
+-- Ghim Tween liên tục trên đầu quái để tránh bị văng
+function FarmEnemy(enemy)
+    if not enemy or not enemy:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local targetPos = enemy.HumanoidRootPart.Position + Vector3.new(0, 12, 0)
+    local tween = ts:Create(hrp, TweenInfo.new(0.3, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetPos)})
+    tween:Play()
+end
+-- Tăng hitbox quái + làm quái đứng im
+function ModifyMob(mob)
+    for _,v in ipairs(mob:GetChildren()) do
+        if v:IsA("BasePart") then
+            v.Size = Vector3.new(60,60,60)
+            v.Transparency = 0.2 -- Giảm mờ như yêu cầu
+            v.Anchored = true -- Làm quái đứng im
+        end
+    end
+end
+
+-- Auto Equip Haki vô hạn nếu tắt thì bật lại
+task.spawn(function()
+    while task.wait(5) do
+        if autoFarm then
+            rep.Remotes.CommE:FireServer("Buso")
+        end
+    end
+end)
+
+-- Auto Equip vũ khí nếu chưa cầm (ưu tiên melee trước)
+function AutoEquip()
+    local char = plr.Character
+    if not char then return end
+    local tool = char:FindFirstChildOfClass("Tool")
+    if tool then return end -- đã có tool
+
+    for _,v in pairs(plr.Backpack:GetChildren()) do
+        if v:IsA("Tool") and (v.Name:lower():find("combat") or v.Name:lower():find("kung")) then
+            plr.Character.Humanoid:EquipTool(v)
+            break
+        end
+    end
+end
+-- Tạo block ảo dưới chân khi Tween
+function CreateFakeBlockUnder()
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local part = Instance.new("Part", workspace)
+	part.Name = "BF_FakeBlock"
+	part.Size = Vector3.new(6, 1, 6)
+	part.Anchored = true
+	part.CanCollide = true
+	part.Transparency = 0.3
+	part.Position = hrp.Position - Vector3.new(0, hrp.Size.Y/2 + 2, 0)
+	part.Material = Enum.Material.Neon
+	part.Color = Color3.fromRGB(255, 255, 255)
+	
+	return part
+end
+
+-- Xoá block ảo khi tắt farm
+function RemoveFakeBlock()
+	for _,v in pairs(workspace:GetChildren()) do
+		if v:IsA("Part") and v.Name == "BF_FakeBlock" then
+			v:Destroy()
+		end
+	end
+end
+
+-- Khi tắt farm thì xoá block
+btnFarm.MouseButton1Click:Connect(function()
+	autoFarm = not autoFarm
+	btnFarm.Text = autoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
+	if not autoFarm then
+		RemoveFakeBlock()
+	end
+end)
+-- Auto Equip vũ khí (ưu tiên Melee > Sword)
+function AutoEquip()
+	local backpack = plr.Backpack
+	local char = plr.Character
+	local hasTool = char:FindFirstChildOfClass("Tool")
+	if hasTool then return end
+
+	local meleeList = {"Combat", "Black Leg", "Electro", "Fishman Karate", "Dragon Claw", "Superhuman", "Death Step"}
+	local swordList = {"Katana", "Dual Katana", "Iron Mace", "Shark Saw", "Triple Katana", "Bisento", "Midnight Blade", "Saber"}
+
+	for _,name in ipairs(meleeList) do
+		local tool = backpack:FindFirstChild(name)
+		if tool then
+			tool.Parent = char
+			return
+		end
+	end
+
+	for _,name in ipairs(swordList) do
+		local tool = backpack:FindFirstChild(name)
+		if tool then
+			tool.Parent = char
+			return
+		end
+	end
+end
+-- Tạo block ảo dưới chân khi Tween để không rớt xuống biển
+function CreateFakePlatform()
+	local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	-- Xóa block cũ nếu có
+	local old = workspace:FindFirstChild("TweenBlock_"..plr.Name)
+	if old then old:Destroy() end
+
+	local block = Instance.new("Part", workspace)
+	block.Name = "TweenBlock_"..plr.Name
+	block.Anchored = true
+	block.Size = Vector3.new(5,1,5)
+	block.CanCollide = true
+	block.Transparency = 0.3
+	block.Position = root.Position - Vector3.new(0, 3.5, 0)
+	block.BrickColor = BrickColor.new("Bright blue")
+end
+
+-- Xoá block khi tắt farm
+function RemoveFakePlatform()
+	local block = workspace:FindFirstChild("TweenBlock_"..plr.Name)
+	if block then block:Destroy() end
+end
+-- Tăng hitbox quái + làm mờ vừa phải để dễ đánh
+function EnlargeMobHitbox(mob)
+	for _, part in ipairs(mob:GetChildren()) do
+		if part:IsA("BasePart") then
+			part.Size = Vector3.new(60, 60, 60)
+			part.Transparency = 0.2
+			part.CanCollide = false
+		end
+	end
+end
+
+-- Đè quái đứng im (cách 2: đặt anchor lên đầu quái)
+function AnchorMob(mob)
+	local root = mob:FindFirstChild("HumanoidRootPart")
+	if root then
+		local anchor = Instance.new("Attachment", root)
+		anchor.Name = "MobAnchor_" .. mob.Name
+	end
+end
+
+-- Làm sạch anchor nếu cần
+function RemoveAnchor(mob)
+	local root = mob:FindFirstChild("HumanoidRootPart")
+	if root and root:FindFirstChild("MobAnchor_"..mob.Name) then
+		root:FindFirstChild("MobAnchor_"..mob.Name):Destroy()
+	end
+end
+-- Tạo block ảo dưới chân để không rớt biển khi tween
+function CreateFloatingPlatform()
+	if not workspace:FindFirstChild("AntiFallBlock") then
+		local part = Instance.new("Part", workspace)
+		part.Name = "AntiFallBlock"
+		part.Size = Vector3.new(10, 1, 10)
+		part.Anchored = true
+		part.Transparency = 1
+		part.CanCollide = true
+	end
+end
+
+-- Cập nhật vị trí block theo người chơi
+function UpdatePlatformPosition()
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		local block = workspace:FindFirstChild("AntiFallBlock")
+		if block then
+			block.Position = hrp.Position - Vector3.new(0, 4, 0)
+		end
+	end
+end
+
+-- Xóa block khi off farm
+function RemoveFloatingPlatform()
+	local block = workspace:FindFirstChild("AntiFallBlock")
+	if block then
+		block:Destroy()
+	end
+end
+-- Auto Equip vũ khí (ưu tiên võ nếu có)
+function AutoEquipWeapon()
+	if not plr.Character or not plr.Backpack then return end
+
+	local weaponPriority = {
+		"Melee", "Combat", "Black Leg", "Electric", "Water Kung Fu", "Dragon Breath", "Death Step", "Sharkman Karate",
+		"Electric Claw", "Dragon Talon", "Superhuman", "Godhuman"
+	}
+
+	for _,name in pairs(weaponPriority) do
+		local tool = plr.Backpack:FindFirstChild(name)
+		if tool then
+			tool.Parent = plr.Character
+			return
+		end
+	end
+
+	-- Nếu không có võ thì ưu tiên kiếm
+	for _,tool in pairs(plr.Backpack:GetChildren()) do
+		if tool:IsA("Tool") and string.find(tool.Name, "Sword") then
+			tool.Parent = plr.Character
+			return
+		end
+	end
+end
+-- Auto Click chính xác: Tạm ngưng khi đang ở gần NPC hoặc có bảng quest mở
+function ShouldClick()
+	if not autoFarm then return false end
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return false end
+
+	-- Kiểm tra nếu có GUI nhiệm vụ bật (tránh bị kẹt)
+	for _,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants()) do
+		if v:IsA("TextLabel") and string.find(v.Name:lower(), "quest") and v.Visible then
+			return false
+		end
+	end
+
+	-- Không click nếu đang ở gần NPC để tránh click nhầm
+	for _,npc in pairs(workspace:GetDescendants()) do
+		if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
+			if (npc.HumanoidRootPart.Position - hrp.Position).Magnitude < 10 and string.find(npc.Name, "Quest") then
+				return false
+			end
+		end
+	end
+
+	return true
+end
+
+-- Tối ưu hóa click
+task.spawn(function()
+	while task.wait(0.15) do
+		if ShouldClick() then
+			ClickAttack()
+		end
+	end
+end)
+-- Tạo block ảo dưới chân khi tween để không rớt xuống biển
+function CreateFakePlatform(char)
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		if not workspace:FindFirstChild("FakePlatform") then
+			local part = Instance.new("Part", workspace)
+			part.Name = "FakePlatform"
+			part.Size = Vector3.new(10,1,10)
+			part.Anchored = true
+			part.CanCollide = true
+			part.Transparency = 1
+			part.Position = char.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+		else
+			workspace.FakePlatform.Position = char.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+		end
+	end
+end
+
+-- Đè quái đứng im bằng cách chỉnh Anchored
+function AnchorMob(mob)
+	if mob and mob:FindFirstChild("HumanoidRootPart") then
+		mob.HumanoidRootPart.Anchored = true
+	end
+end
+
+-- Giảm độ mờ hitbox & chỉnh size hitbox quái
+function ResizeHitbox(mob)
+	for _,v in ipairs(mob:GetChildren()) do
+		if v:IsA("BasePart") then
+			v.Size = Vector3.new(50, 50, 50)
+			v.Transparency = 0.2
+		end
+	end
+end
+
+-- Ghim block ảo liên tục + đè quái đứng im
+task.spawn(function()
+	while task.wait(0.3) do
+		if autoFarm and plr.Character then
+			CreateFakePlatform(plr.Character)
+			local targetMob = FindNearestMob()
+			if targetMob then
+				AnchorMob(targetMob)
+				ResizeHitbox(targetMob)
+			end
+		else
+			if workspace:FindFirstChild("FakePlatform") then
+				workspace.FakePlatform:Destroy()
+			end
+		end
+	end
+end)
+-- Tìm NPC nhận nhiệm vụ gần nhất và thực hiện nhận nếu chưa có nhiệm vụ
+function GetQuestNPC()
+	for _,v in pairs(workspace:GetDescendants()) do
+		if v:IsA("Model") and v:FindFirstChild("Head") and v:FindFirstChild("HumanoidRootPart") and string.find(v.Name, "Quest") then
+			return v
+		end
+	end
+	return nil
+end
+
+-- Kiểm tra đã có nhiệm vụ chưa
+function HasQuest()
+	local plrGui = plr.PlayerGui:FindFirstChild("Main")
+	if plrGui and plrGui:FindFirstChild("Quest") and plrGui.Quest.Visible == true then
+		return true
+	end
+	return false
+end
+
+-- Nhận nhiệm vụ nếu chưa có
+function GetQuest()
+	local npc = GetQuestNPC()
+	if npc and not HasQuest() then
+		-- Tắt auto click để tránh bấm trúng NPC
+		local oldAutoClick = autoFarm
+		autoFarm = false
+
+		local root = plr.Character:FindFirstChild("HumanoidRootPart")
+		if root then
+			local pos = npc.HumanoidRootPart.Position + Vector3.new(0, 3, 0)
+			local tween = ts:Create(root, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+			tween:Play()
+			tween.Completed:Wait()
+
+			-- Fake click vào NPC
+			rep.Remotes.CommE:InvokeServer("StartQuest", npc.Name, 1)
+
+			task.wait(1.2) -- chờ nhận xong
+		end
+
+		autoFarm = oldAutoClick
+	end
+end
+
+-- Tự động nhận nhiệm vụ thông minh (chỉ nhận nếu không có nhiệm vụ)
+task.spawn(function()
+	while task.wait(1.5) do
+		if autoFarm and not HasQuest() then
+			GetQuest()
+		end
+	end
+end)
+-- Danh sách đảo và thông tin quái trong Sea 1
+local Sea1Mobs = {
+	{level = 10, name = "Bandit", pos = CFrame.new(1036, 17, 1547)},
+	{level = 30, name = "Monkey", pos = CFrame.new(-1615, 36, 152)},
+	{level = 45, name = "Gorilla", pos = CFrame.new(-1335, 40, -515)},
+	{level = 60, name = "Pirate", pos = CFrame.new(-4850, 20, 4300)},
+	{level = 75, name = "Brute", pos = CFrame.new(-4950, 20, 3800)},
+	{level = 90, name = "Desert Bandit", pos = CFrame.new(932, 7, 4484)},
+	{level = 105, name = "Desert Officer", pos = CFrame.new(1570, 10, 4373)},
+	{level = 120, name = "Snow Bandit", pos = CFrame.new(1388, 87, -1297)},
+	{level = 135, name = "Snowman", pos = CFrame.new(1195, 100, -1453)},
+	{level = 160, name = "Chief Petty Officer", pos = CFrame.new(-4855, 20, 705)},
+	{level = 175, name = "Sky Bandit", pos = CFrame.new(-4982, 278, -2835)},
+	{level = 190, name = "Dark Master", pos = CFrame.new(-5252, 390, -2300)},
+	{level = 210, name = "Prisoner", pos = CFrame.new(5300, 40, 470)},
+	{level = 250, name = "Toga Warrior", pos = CFrame.new(-1750, 15, -2900)},
+	{level = 300, name = "Military Soldier", pos = CFrame.new(-5400, 90, 860)},
+	{level = 375, name = "Royal Squad", pos = CFrame.new(-5800, 80, 2500)},
+	{level = 450, name = "Galley Pirate", pos = CFrame.new(5580, 80, 4000)},
+	{level = 525, name = "Galley Captain", pos = CFrame.new(5895, 90, 4775)}
+}
+
+-- Lấy dữ liệu quái phù hợp theo level hiện tại
+function GetMobData()
+	local lvl = plr.Data.Level.Value
+	local data = nil
+	for i = #Sea1Mobs, 1, -1 do
+		if lvl >= Sea1Mobs[i].level then
+			data = Sea1Mobs[i]
+			break
+		end
+	end
+	return data
+end
+-- Hàm tạo block ảo dưới chân khi bay (anti rơi biển)
+function CreateFootBlock()
+	local block = Instance.new("Part")
+	block.Anchored = true
+	block.CanCollide = true
+	block.Transparency = 1 -- Ẩn block
+	block.Size = Vector3.new(6,1,6)
+	block.Name = "FootBlock"
+	block.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+	block.Parent = workspace
+	return block
+end
+
+-- Tween tới vị trí
+function TweenTo(cf, speed)
+	local char = plr.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+	local hrp = char.HumanoidRootPart
+	local dist = (hrp.Position - cf.Position).Magnitude
+	local tween = ts:Create(hrp, TweenInfo.new(dist/speed, Enum.EasingStyle.Linear), {CFrame = cf})
+
+	local block = CreateFootBlock()
+	tween:Play()
+	tween.Completed:Wait()
+	if block and block.Parent then block:Destroy() end
+end
+-- Hàm tạo block ảo dưới chân người chơi khi tween để không bị rơi biển
+function CreateFloatingBlock()
+    if not workspace:FindFirstChild("TweenBlock_" .. plr.Name) then
+        local floatBlock = Instance.new("Part", workspace)
+        floatBlock.Size = Vector3.new(10,1,10)
+        floatBlock.Anchored = true
+        floatBlock.CanCollide = true
+        floatBlock.Transparency = 1
+        floatBlock.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+        floatBlock.Name = "TweenBlock_" .. plr.Name
+    end
+end
+
+function RemoveFloatingBlock()
+    local oldBlock = workspace:FindFirstChild("TweenBlock_" .. plr.Name)
+    if oldBlock then
+        oldBlock:Destroy()
+    end
+end
+
+-- Ghim tween liên tục trên đầu quái
+function StickToMob(mob)
+    if mob and mob:FindFirstChild("HumanoidRootPart") then
+        local targetPos = mob.HumanoidRootPart.Position + Vector3.new(0, 6, 0)
+        local hrp = plr.Character:WaitForChild("HumanoidRootPart")
+        local dist = (hrp.Position - targetPos).Magnitude
+        if dist > 5 then
+            local tween = ts:Create(hrp, TweenInfo.new(dist/150, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetPos)})
+            tween:Play()
+        end
+        CreateFloatingBlock()
+    end
+end
+-- Hàm mở rộng hitbox quái & làm quái đứng yên
+function ExpandMobHitbox(mob)
+	for _,v in ipairs(mob:GetChildren()) do
+		if v:IsA("BasePart") then
+			v.Size = Vector3.new(60, 60, 60)
+			v.Transparency = 0.2
+			v.Anchored = true
+		end
+	end
+end
+
+-- Kiểm tra còn nhiệm vụ cũ không
+function IsQuestCompleted()
+	local pGui = plr.PlayerGui:FindFirstChild("QuestGUI")
+	if pGui and pGui.Enabled then
+		local desc = pGui:FindFirstChild("Description")
+		if desc and string.find(desc.Text, "Defeat") then
+			local left = tonumber(string.match(desc.Text, "%d+"))
+			return left and left <= 0
+		end
+	end
+	return false
+end
+-- Auto farm chính (tự động tìm quái & đánh)
+task.spawn(function()
+	while task.wait(0.3) do
+		if autoFarm then
+			local mobInfo = GetMobInfo()
+			if mobInfo then
+				local mobName, questName, questPos, mobPos = unpack(mobInfo)
+
+				-- Nếu chưa có nhiệm vụ hoặc đã xong thì nhận nhiệm vụ
+				if not HasQuest() or IsQuestCompleted() then
+					ToggleClick(false)
+					TweenTo(questPos)
+					task.wait(0.5)
+					ReplicatedStorage.Remotes.CommE:InvokeServer("StartQuest", questName, 1)
+					task.wait(0.3)
+					ToggleClick(true)
+				end
+
+				-- Tìm quái phù hợp
+				local nearestMob = GetNearestMob(mobName)
+				if nearestMob and nearestMob:FindFirstChild("HumanoidRootPart") then
+					ExpandMobHitbox(nearestMob)
+					while nearestMob and nearestMob:FindFirstChild("Humanoid") and nearestMob.Humanoid.Health > 0 and autoFarm do
+						TweenTo(nearestMob.HumanoidRootPart.Position + Vector3.new(0, 30, 0))
+						task.wait(0.2)
+					end
+				end
+			end
+		end
+	end
+end)
+-- Hàm tween tới vị trí
+function TweenTo(pos)
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+	local tween = ts:Create(hrp, TweenInfo.new((hrp.Position - pos).Magnitude / 300, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+	tween:Play()
+
+	-- Tạo block ảo dưới chân để tránh rớt xuống nước
+	local fakeBlock = Instance.new("Part", workspace)
+	fakeBlock.Size = Vector3.new(10, 1, 10)
+	fakeBlock.Anchored = true
+	fakeBlock.CanCollide = true
+	fakeBlock.Transparency = 1
+	fakeBlock.Position = pos - Vector3.new(0, 3, 0)
+	game.Debris:AddItem(fakeBlock, 3)
+end
+
+-- Kiểm tra có nhiệm vụ không
+function HasQuest()
+	return plr.PlayerGui:FindFirstChild("QuestGUI") and plr.PlayerGui.QuestGUI.Visible
+end
+
+-- Kiểm tra đã hoàn thành nhiệm vụ chưa
+function IsQuestCompleted()
+	local gui = plr.PlayerGui:FindFirstChild("QuestGUI")
+	if gui and gui:FindFirstChild("Title") and gui.Title.Text:find("Complete") then
+		return true
+	end
+	return false
+end
+
+-- Tìm quái gần nhất
+function GetNearestMob(name)
+	local closest, dist = nil, 1e6
+	for _, mob in pairs(workspace.Enemies:GetChildren()) do
+		if mob.Name == name and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+			local d = (mob.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+			if d < dist then
+				closest = mob
+				dist = d
+			end
+		end
+	end
+	return closest
+end
+-- Auto equip vũ khí (ưu tiên Melee/Sword)
+function AutoEquipWeapon()
+	local char = plr.Character
+	if not char then return end
+	local backpack = plr:FindFirstChild("Backpack")
+	if not backpack then return end
+
+	-- Danh sách vũ khí ưu tiên (ưu tiên võ)
+	local priority = {"Electric Claw", "Dragon Talon", "Sharkman Karate", "Superhuman", "Death Step", "Godhuman", "Combat", "Dark Step", "Water Kung Fu", "Electric"}
+
+	for _, name in ipairs(priority) do
+		if backpack:FindFirstChild(name) then
+			plr.Character.Humanoid:EquipTool(backpack[name])
+			break
+		end
+	end
+end
+
+-- Đè quái + chỉnh hitbox
+function ApplyMobEffects(mob)
+	for _, part in ipairs(mob:GetChildren()) do
+		if part:IsA("BasePart") then
+			part.Size = Vector3.new(60, 60, 60)
+			part.Transparency = 0.2
+			part.Anchored = true -- giữ quái đứng yên
+		end
+	end
+end
+-- Dữ liệu đảo và quái ở SEA 1
+local IslandData = {
+    [1] = {Level = 10, Name = "Bandit", Pos = CFrame.new(1060, 16, 1548), Quest = "BanditQuest1", Mob = "Bandit", LevelCap = 14},
+    [2] = {Level = 15, Name = "Monkey", Pos = CFrame.new(-1602, 39, 145), Quest = "JungleQuest", Mob = "Monkey", LevelCap = 29},
+    [3] = {Level = 30, Name = "Pirate", Pos = CFrame.new(-1111, 13, 3917), Quest = "BuggyQuest1", Mob = "Pirate", LevelCap = 59},
+    -- (Thêm tất cả đảo Sea 1 ở đây...)
+    -- Gợi ý: bạn có thể tự thêm tiếp bằng mẫu như trên
+}
+
+-- Hàm tạo block ảo dưới chân
+function CreateFakePlatform()
+	if workspace:FindFirstChild("FakeBlock") then return end
+	local part = Instance.new("Part", workspace)
+	part.Anchored = true
+	part.Size = Vector3.new(10,1,10)
+	part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0,3.5,0)
+	part.Name = "FakeBlock"
+	part.Transparency = 1
+	part.CanCollide = true
+end
+
+-- Xóa block ảo khi tắt farm
+function RemoveFakePlatform()
+	if workspace:FindFirstChild("FakeBlock") then
+		workspace:FindFirstChild("FakeBlock"):Destroy()
+	end
+end
+
+-- Tìm dữ liệu đảo phù hợp
+function GetIsland()
+	local level = plr.Data.Level.Value
+	for i = #IslandData, 1, -1 do
+		if level >= IslandData[i].Level then
+			return IslandData[i]
+		end
+	end
+end
+
+-- Tween tới vị trí
+function TweenTo(cf)
+	local hrp = plr.Character.HumanoidRootPart
+	local tween = ts:Create(hrp, TweenInfo.new((hrp.Position - cf.Position).Magnitude/100, Enum.EasingStyle.Linear), {CFrame = cf})
+	tween:Play()
+	tween.Completed:Wait()
+end
+
+-- Farm loop
 task.spawn(function()
 	while true do
-		task.wait(4)
+		task.wait(1)
+		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local island = GetIsland()
+			if island then
+				TweenTo(island.Pos)
+				CreateFakePlatform()
+				task.wait(3)
+
+				-- Nhận nhiệm vụ
+				rep.Remotes.CommE:FireServer("StartQuest", island.Quest, 1)
+
+				-- Tìm và farm quái
+				for _, mob in pairs(workspace.Enemies:GetChildren()) do
+					if mob.Name == island.Mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+						AutoEquipWeapon()
+						ApplyMobEffects(mob)
+
+						repeat
+							TweenTo(mob.HumanoidRootPart.CFrame + Vector3.new(0, 10, 0))
+							task.wait(0.3)
+						until not autoFarm or mob.Humanoid.Health <= 0 or not mob.Parent
+
+						task.wait(0.5)
+					end
+				end
+			end
+		else
+			RemoveFakePlatform()
+		end
+	end
+end)
+-- WELCOME TO SANG HUB
+local function ShowWelcome()
+	local welGui = Instance.new("ScreenGui", game.CoreGui)
+	welGui.Name = "SangHubWelcome"
+
+	local frame = Instance.new("Frame", welGui)
+	frame.Size = UDim2.new(0, 300, 0, 100)
+	frame.Position = UDim2.new(0.5, -150, 0.3, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	frame.BackgroundTransparency = 0.2
+	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+	local title = Instance.new("TextLabel", frame)
+	title.Size = UDim2.new(1, 0, 0.5, 0)
+	title.Position = UDim2.new(0, 0, 0, 0)
+	title.Text = "🎉 Cảm Ơn Bạn Đã Sử Dụng Sang Hub!"
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.Font = Enum.Font.GothamBold
+	title.TextSize = 16
+	title.BackgroundTransparency = 1
+
+	local body = Instance.new("TextLabel", frame)
+	body.Size = UDim2.new(1, 0, 0.5, 0)
+	body.Position = UDim2.new(0, 0, 0.5, 0)
+	body.Text = "Welcome To Sang Hub 😍"
+	body.TextColor3 = Color3.fromRGB(200, 200, 200)
+	body.Font = Enum.Font.Gotham
+	body.TextSize = 14
+	body.BackgroundTransparency = 1
+
+	-- Tự động biến mất sau 4s
+	task.delay(4, function()
+		welGui:Destroy()
+	end)
+end
+
+-- Gọi hàm welcome khi script khởi động
+ShowWelcome()
+-- AUTO ENABLE HAKI VÔ HẠN
+task.spawn(function()
+	while true do
+		task.wait(3) -- delay nhẹ để tránh spam
 		pcall(function()
-			rep.Remotes.CommE:FireServer("Buso")
+			if not plr.Character:FindFirstChild("HasBuso") then
+				rep.Remotes.CommE:FireServer("Buso")
+			end
 		end)
 	end
 end)
+-- TẠO BLOCK ẢO DƯỚI CHÂN KHI TWEEN (CHỐNG RỚT XUỐNG BIỂN)
+local function CreateFootBlock()
+	local footBlock = Instance.new("Part", workspace)
+	footBlock.Size = Vector3.new(8, 1, 8)
+	footBlock.Anchored = true
+	footBlock.CanCollide = true
+	footBlock.Transparency = 1 -- Block ẩn hoàn toàn
+	footBlock.Name = "TweenBlock"
+	return footBlock
+end
 
--- ESP & Collect trái ác quỷ
-local plr = game.Players.LocalPlayer
+-- Hàm tween có block
+local function TweenWithFootBlock(cf)
+	local block = CreateFootBlock()
+	block.Position = cf.Position - Vector3.new(0, 3.5, 0) -- đặt dưới chân
+
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		local tw = ts:Create(hrp, TweenInfo.new((hrp.Position - cf.Position).Magnitude / 200, Enum.EasingStyle.Linear), {CFrame = cf})
+		tw:Play()
+		tw.Completed:Wait()
+	end
+
+	-- Xóa block sau tween
+	if block then block:Destroy() end
+end
+-- DANH SÁCH FARM FULL SEA 1 (LEVEL FARM, TÊN ĐẢO, TÊN QUEST, QUÁI, VỊ TRÍ)
+local BF_LevelFarm = {
+    [1] = {
+        MinLevel = 0,
+        MaxLevel = 9,
+        Island = "Bandit Island",
+        QuestName = "BanditQuest1",
+        Mob = "Bandit",
+        QuestPos = Vector3.new(1060, 17, 1547),
+        MobPos = Vector3.new(1145, 17, 1631)
+    },
+    [2] = {
+        MinLevel = 10,
+        MaxLevel = 14,
+        Island = "Bandit Island",
+        QuestName = "BanditQuest2",
+        Mob = "Monkey",
+        QuestPos = Vector3.new(-1602, 37, 153),
+        MobPos = Vector3.new(-1443, 37, 75)
+    },
+    [3] = {
+        MinLevel = 15,
+        MaxLevel = 29,
+        Island = "Jungle",
+        QuestName = "JungleQuest",
+        Mob = "Gorilla",
+        QuestPos = Vector3.new(-1602, 37, 153),
+        MobPos = Vector3.new(-1121, 40, -525)
+    },
+    [4] = {
+        MinLevel = 30,
+        MaxLevel = 39,
+        Island = "Pirate Village",
+        QuestName = "BuggyQuest1",
+        Mob = "Pirate",
+        QuestPos = Vector3.new(-1145, 5, 3825),
+        MobPos = Vector3.new(-1191, 5, 3922)
+    },
+    [5] = {
+        MinLevel = 40,
+        MaxLevel = 59,
+        Island = "Pirate Village",
+        QuestName = "BuggyQuest1",
+        Mob = "Brute",
+        QuestPos = Vector3.new(-1145, 5, 3825),
+        MobPos = Vector3.new(-1212, 5, 3954)
+    },
+    [6] = {
+        MinLevel = 60,
+        MaxLevel = 74,
+        Island = "Desert",
+        QuestName = "DesertQuest",
+        Mob = "Desert Bandit",
+        QuestPos = Vector3.new(897, 7, 4382),
+        MobPos = Vector3.new(940, 7, 4485)
+    },
+    [7] = {
+        MinLevel = 75,
+        MaxLevel = 89,
+        Island = "Desert",
+        QuestName = "DesertQuest",
+        Mob = "Desert Officer",
+        QuestPos = Vector3.new(897, 7, 4382),
+        MobPos = Vector3.new(1572, 10, 4371)
+    },
+    [8] = {
+        MinLevel = 90,
+        MaxLevel = 99,
+        Island = "Frozen Village",
+        QuestName = "SnowQuest",
+        Mob = "Snow Bandit",
+        QuestPos = Vector3.new(1386, 87, -1297),
+        MobPos = Vector3.new(1289, 87, -1394)
+    },
+    [9] = {
+        MinLevel = 100,
+        MaxLevel = 119,
+        Island = "Frozen Village",
+        QuestName = "SnowQuest",
+        Mob = "Snowman",
+        QuestPos = Vector3.new(1386, 87, -1297),
+        MobPos = Vector3.new(1396, 87, -1468)
+    },
+    -- Tiếp tục thêm các đảo còn lại Sea 1 bên dưới theo level
+}
+-- LẤY THÔNG TIN LEVEL FARM
+function GetFarmData()
+	local level = plr.Data.Level.Value
+	for i, v in pairs(BF_LevelFarm) do
+		if level >= v.MinLevel and level <= v.MaxLevel then
+			return v
+		end
+	end
+end
+
+-- TWEEN FUNCTION
+function SmoothTween(pos)
+	local root = plr.Character:WaitForChild("HumanoidRootPart")
+	local dist = (root.Position - pos).Magnitude
+	local time = dist / 200
+	local tween = ts:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+	tween:Play()
+	tween.Completed:Wait()
+end
+
+-- TẠO BLOCK ẢO DƯỚI CHÂN KHI TWEEN
+function CreateAntiFallBlock()
+	local root = plr.Character:WaitForChild("HumanoidRootPart")
+	local block = Instance.new("Part", workspace)
+	block.Size = Vector3.new(10,1,10)
+	block.Anchored = true
+	block.CanCollide = true
+	block.Transparency = 1
+	block.Position = root.Position - Vector3.new(0, 3, 0)
+	block.Name = "AntiFallBlock"
+	return block
+end
+
+-- AUTO FARM CHÍNH
 task.spawn(function()
 	while task.wait(1) do
-		for _, v in pairs(workspace:GetChildren()) do
-			if v:IsA("Tool") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("TouchInterest") then
-				-- ESP Fruit
-				if fruitESPOn and not v:FindFirstChild("FruitESP") then
-					local tag = Instance.new("BillboardGui", v)
-					tag.Name = "FruitESP"
-					tag.Size = UDim2.new(0, 100, 0, 40)
-					tag.StudsOffset = Vector3.new(0, 2, 0)
-					tag.AlwaysOnTop = true
-					
-					local txt = Instance.new("TextLabel", tag)
-					txt.Size = UDim2.new(1, 0, 1, 0)
-					txt.Text = v.Name
-					txt.TextColor3 = Color3.fromRGB(255, 0, 0)
-					txt.TextSize = 9
-					txt.BackgroundTransparency = 1
-				elseif not fruitESPOn and v:FindFirstChild("FruitESP") then
-					v.FruitESP:Destroy()
+		if autoFarm then
+			local data = GetFarmData()
+			if data then
+				-- XÓA BLOCK CŨ
+				if workspace:FindFirstChild("AntiFallBlock") then
+					workspace.AntiFallBlock:Destroy()
 				end
-				
-				-- Auto Collect
-				if autoCollect and (v.Handle.Position - plr.Character.HumanoidRootPart.Position).Magnitude < 30 then
-					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 0)
-					firetouchinterest(plr.Character.HumanoidRootPart, v.Handle, 1)
-				end
-			end
-		end
-		
-		-- ESP Player
-		for _, player in pairs(game.Players:GetPlayers()) do
-			if player ~= plr and player.Character and player.Character:FindFirstChild("Head") then
-				local head = player.Character.Head
-				if espOn and not head:FindFirstChild("PlayerESP") then
-					local tag = Instance.new("BillboardGui", head)
-					tag.Name = "PlayerESP"
-					tag.Size = UDim2.new(0, 100, 0, 40)
-					tag.StudsOffset = Vector3.new(0, 2, 0)
-					tag.AlwaysOnTop = true
+				local block = CreateAntiFallBlock()
 
-					local txt = Instance.new("TextLabel", tag)
-					txt.Size = UDim2.new(1, 0, 1, 0)
-					txt.Text = player.Name
-					txt.TextColor3 = Color3.fromRGB(0, 255, 0)
-					txt.TextSize = 9
-					txt.BackgroundTransparency = 1
-				elseif not espOn and head:FindFirstChild("PlayerESP") then
-					head.PlayerESP:Destroy()
+				-- TWEEN ĐẾN ĐẢO
+				SmoothTween(data.QuestPos)
+
+				task.wait(1)
+
+				-- NHẬN QUEST
+				rep.Remotes.CommF_:InvokeServer("StartQuest", data.QuestName, 1)
+
+				task.wait(0.5)
+
+				-- TWEEN ĐẾN QUÁI
+				SmoothTween(data.MobPos)
+
+				-- FARM
+				for i = 1, 999 do
+					if not autoFarm then break end
+					ClickAttack()
+					task.wait(0.25)
 				end
 			end
 		end
 	end
 end)
--- WELCOME TO SANG HUB - POPUP
-local StarterGui = game:GetService("StarterGui")
+-- CHECK ĐÃ HOÀN THÀNH NHIỆM VỤ
+function QuestCompleted()
+	local data = GetFarmData()
+	if not data then return false end
+	for _,v in pairs(workspace.Enemies:GetChildren()) do
+		if v.Name == data.MobName and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+			return false -- Vẫn còn quái chưa giết
+		end
+	end
+	return true -- Đã giết đủ
+end
 
+-- FARM QUÁI SAU KHI NHẬN NHIỆM VỤ
+task.spawn(function()
+	while task.wait(0.5) do
+		if autoFarm then
+			local data = GetFarmData()
+			if data then
+				-- KIỂM TRA CÓ NHIỆM VỤ ĐANG LÀM CHƯA
+				if plr.PlayerGui:FindFirstChild("QuestGUI") and plr.PlayerGui.QuestGUI.Visible then
+					local mobName = data.MobName
+					for _,mob in pairs(workspace.Enemies:GetChildren()) do
+						if mob.Name == mobName and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+							local mobRoot = mob:FindFirstChild("HumanoidRootPart")
+							if mobRoot then
+								SmoothTween(mobRoot.Position + Vector3.new(0, 3, 0))
+								for _,v in ipairs(mob:GetChildren()) do
+									if v:IsA("BasePart") then
+										v.Size = Vector3.new(60,60,60)
+										v.Transparency = 0.2
+									end
+								end
+								repeat
+									if not autoFarm then break end
+									ClickAttack()
+									task.wait(0.25)
+								until mob.Humanoid.Health <= 0 or not mob:IsDescendantOf(workspace)
+							end
+						end
+					end
+
+					-- Nếu đã hoàn thành nhiệm vụ thì nhận tiếp
+					if QuestCompleted() then
+						rep.Remotes.CommF_:InvokeServer("CancelQuest")
+						task.wait(0.5)
+						SmoothTween(data.QuestPos)
+						task.wait(0.5)
+						rep.Remotes.CommF_:InvokeServer("StartQuest", data.QuestName, 1)
+					end
+				end
+			end
+		end
+	end
+end)
+-- Auto chọn đảo phù hợp với level
+local IslandData = {
+    {Level = 10, Name = "Bandit", CFrame = CFrame.new(1060, 16, 1547)},
+    {Level = 30, Name = "Monkey", CFrame = CFrame.new(-1619, 35, 145)},
+    {Level = 60, Name = "Gorilla", CFrame = CFrame.new(-1320, 100, -470)},
+    {Level = 100, Name = "Pirate", CFrame = CFrame.new(-4867, 20, 4288)},
+    {Level = 150, Name = "Brute", CFrame = CFrame.new(-4959, 20, 3899)},
+    {Level = 190, Name = "Desert", CFrame = CFrame.new(932, 7, 4485)},
+    {Level = 275, Name = "Snow", CFrame = CFrame.new(1357, 87, -1325)},
+    {Level = 350, Name = "Marine", CFrame = CFrame.new(-4505, 21, 4255)},
+    {Level = 425, Name = "Sky 1", CFrame = CFrame.new(-4961, 717, -2622)},
+    {Level = 450, Name = "Sky 2", CFrame = CFrame.new(-5251, 389, -2342)},
+    {Level = 525, Name = "Prison", CFrame = CFrame.new(5306, 38, 474)},
+    {Level = 625, Name = "Colosseum", CFrame = CFrame.new(-1811, 11, -2740)},
+    {Level = 700, Name = "Fountain", CFrame = CFrame.new(5178, 39, 4073)}
+}
+
+local function GetNearestIsland()
+	local level = plr.Data.Level.Value
+	local selected
+	for i, data in ipairs(IslandData) do
+		if level >= data.Level then
+			selected = data
+		end
+	end
+	return selected
+end
+
+task.spawn(function()
+	while task.wait(5) do
+		if autoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local island = GetNearestIsland()
+			if island then
+				ts:Create(plr.Character.HumanoidRootPart, TweenInfo.new(2, Enum.EasingStyle.Linear), {CFrame = island.CFrame}):Play()
+			end
+		end
+	end
+end)
+-- Tự động chuyển sang Sea 2 nếu đạt level 700+
+task.spawn(function()
+	while task.wait(10) do
+		if autoFarm and plr and plr:FindFirstChild("Data") and plr.Data.Level.Value >= 700 then
+			if game.PlaceId == 2753915549 then -- Sea 1 PlaceId
+				warn("Đạt cấp 700+! Chuẩn bị chuyển sang Sea 2...")
+				rep.Remotes.CommF_:InvokeServer("TravelDressrosa") -- Dùng để chuyển sang Sea 2
+			end
+		end
+	end
+end)
+-- Auto mua và bật Haki vũ trang nếu chưa có
+task.spawn(function()
+	while task.wait(10) do
+		if plr.Character and not plr.Character:FindFirstChild("HasBuso") then
+			rep.Remotes.CommF_:InvokeServer("BuyHaki","Buso") -- Mua Haki
+		end
+		rep.Remotes.CommE:FireServer("Buso") -- Bật Haki
+	end
+end)
+-- Welcome To Sang Hub
+local StarterGui = game:GetService("StarterGui")
 StarterGui:SetCore("SendNotification", {
-	Title = "Welcom To Sang Hub 🍏";
-	Text = " Blox Fruit script make by: Sang";
-	Duration = 6;
+	Title = "Cảm ơn bạn đã sử dụng Sang Hub 💙",
+	Text = "Welcome To Sang Hub!",
+	Duration = 6
 })
+local doingQuest = false
+
+-- Sử dụng biến doingQuest để kiểm soát auto click
+task.spawn(function()
+	while task.wait(0.15) do
+		if autoFarm and not doingQuest then
+			ClickAttack()
+		end
+	end
+end)
+
+-- Trong đoạn nhận quest (ví dụ sau khi tween tới NPC), hãy thêm:
+doingQuest = true
+-- ... đoạn code nhận nhiệm vụ
+task.wait(1) -- đợi hoàn tất nhận nhiệm vụ
+doingQuest = false
