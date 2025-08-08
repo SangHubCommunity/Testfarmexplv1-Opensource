@@ -860,7 +860,7 @@ end)
 local StarterGui = game:GetService("StarterGui")
 
 StarterGui:SetCore("SendNotification", {
-	Title = "🎉 Cảm ơn bạn đã sử dụng Sang Hub!";
-	Text = "🏆 Thành tựu: Welcome To Sang Hub";
+	Title = "Welcom To Sang Hub 🍏";
+	Text = " Blox Fruit script make by: Sang";
 	Duration = 6;
 })
