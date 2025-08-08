@@ -1,84 +1,20 @@
--- Anti AFK
+-- PHẦN 1: ANTI-AFK & BIẾN TOÀN CỤC BỘ
 for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
-    v:Disable()
+	v:Disable()
 end
 
--- Variables
 local plr = game.Players.LocalPlayer
 local vim = game:GetService("VirtualInputManager")
-local uis = game:GetService("UserInputService")
 local rs = game:GetService("RunService")
-local tween = game:GetService("TweenService")
+local ts = game:GetService("TweenService")
 
 getgenv().AutoFarm = false
-getgenv().UseMelee = true
-getgenv().AutoEquip = true
-getgenv().SelectedMob = "Bandit [Lv. 5]"
-getgenv().WeaponList = {"Combat", "Black Leg", "Electric", "Sharkman Karate", "Dragon Claw", "Superhuman", "Death Step", "Sharkman Karate V2"}
-getgenv().SwordList = {"Katana", "Dual Katana", "Iron Mace", "Triple Katana", "Pipe", "Dual-Headed Blade", "Bisento", "Pole"}
-getgenv().MobFarm = nil
-
--- GUI Setup
+getgenv().SelectedWeapon = "Melee"
+-- PHẦN 2: GUI CƠ BẢN VÀ NÚT BẬT/TẮT
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "SangHub"
 gui.ResetOnSpawn = false
 
--- Toggle Button
-local toggleBtn = Instance.new("TextButton", gui)
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 10, 0, 0.05)
-toggleBtn.Text = "+"
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 200, 30)
-toggleBtn.TextColor3 = Color3.new(1, 1, 1)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 20
-Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 10)
-
--- Main Frame
-local frame = Instance.new("ScrollingFrame", gui)
-frame.Size = UDim2.new(0.3, 0, 1, -60)
-frame.Position = UDim2.new(0, 10, 0, 60)
-frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-frame.CanvasSize = UDim2.new(0, 0, 3, 0)
-frame.ScrollBarThickness = 4
-frame.Visible = true
-frame.Active = true
-frame.Draggable = true
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-
--- Toggle Show/Hide
-toggleBtn.MouseButton1Click:Connect(function()
-    frame.Visible = not frame.Visible
-end)
-
--- Header Label
-local header = Instance.new("TextLabel", frame)
-header.Size = UDim2.new(1, 0, 0, 40)
-header.Text = "SangHub | Main"
-header.BackgroundTransparency = 1
-header.TextColor3 = Color3.fromRGB(0, 255, 0)
-header.Font = Enum.Font.GothamBold
-header.TextSize = 18
---// Anti AFK
-for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
-    v:Disable()
-end
-
---// Biến cơ bản
-local plr = game.Players.LocalPlayer
-local vim = game:GetService("VirtualInputManager")
-local runService = game:GetService("RunService")
-
-getgenv().AutoFarm = false
-getgenv().UseMelee = true
-getgenv().CurrentWeapon = "Combat" -- default
-
---// Tạo GUI đơn giản
-local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "SangHub"
-gui.ResetOnSpawn = false
-
---// Nút bật/tắt GUI
 local toggleBtn = Instance.new("TextButton", gui)
 toggleBtn.Size = UDim2.new(0, 100, 0, 30)
 toggleBtn.Position = UDim2.new(0, 10, 0, 0.05)
@@ -88,218 +24,53 @@ toggleBtn.TextColor3 = Color3.new(1, 1, 1)
 toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.TextSize = 14
 Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
-
---// Khung chính
+-- PHẦN 3: TẠO FRAME CHÍNH & DRAG BẰNG CẢM ỨNG
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 350, 0, 480)
-frame.Position = UDim2.new(0.05, 0, 0.15, 0)
-frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-frame.Visible = true
+frame.Size = UDim2.new(0, 400, 0, 600)
+frame.Position = UDim2.new(0.3, 0, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 frame.Active = true
 frame.Draggable = true
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+frame.Visible = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 
---// Tiêu đề
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 35)
-title.Text = "SangHub | Main Tab"
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.fromRGB(0, 255, 0)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
-
---// Template tạo button
+local tabTitle = Instance.new("TextLabel", frame)
+tabTitle.Size = UDim2.new(1, 0, 0, 35)
+tabTitle.Position = UDim2.new(0, 0, 0, 0)
+tabTitle.BackgroundTransparency = 1
+tabTitle.Text = "Main - Auto Farm"
+tabTitle.Font = Enum.Font.GothamBold
+tabTitle.TextColor3 = Color3.fromRGB(0, 255, 0)
+tabTitle.TextSize = 20
+-- PHẦN 4: TEMPLATE TẠO BUTTON
 local function createButton(text, posY, callback)
 	local btn = Instance.new("TextButton", frame)
-	btn.Size = UDim2.new(0, 300, 0, 40)
-	btn.Position = UDim2.new(0, 25, 0, posY)
+	btn.Size = UDim2.new(0, 360, 0, 40)
+	btn.Position = UDim2.new(0, 20, 0, posY)
 	btn.Text = text
 	btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	btn.TextColor3 = Color3.new(1, 1, 1)
 	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 15
+	btn.TextSize = 16
 	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 	btn.MouseButton1Click:Connect(callback)
 	return btn
 end
-
---// Nút Auto Farm
-local autoFarmBtn = createButton("Auto Farm: OFF", 50, function()
+-- PHẦN 5: NÚT AUTO FARM & CHỌN VŨ KHÍ
+local autoFarmBtn = createButton("Auto Farm: OFF", 60, function()
 	getgenv().AutoFarm = not getgenv().AutoFarm
 	autoFarmBtn.Text = getgenv().AutoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
 end)
 
---// Nút chọn vũ khí
-local weaponBtn = createButton("Weapon: Melee 🥋", 100, function()
-	getgenv().UseMelee = not getgenv().UseMelee
-	weaponBtn.Text = getgenv().UseMelee and "Weapon: Melee 🥋" or "Weapon: Sword ⚔️"
+local weaponBtn = createButton("Weapon: 🥋 Melee", 110, function()
+	getgenv().SelectedWeapon = getgenv().SelectedWeapon == "Melee" and "Sword" or "Melee"
+	weaponBtn.Text = getgenv().SelectedWeapon == "Melee" and "Weapon: 🥋 Melee" or "Weapon: ⚔️ Sword"
 end)
 
---// Toggle hiển thị GUI
 toggleBtn.MouseButton1Click:Connect(function()
 	frame.Visible = not frame.Visible
 end)
-
---// Auto Equip
-local function EquipBestWeapon()
-	local inv = plr.Backpack:GetChildren()
-	for _, item in ipairs(inv) do
-		if item:IsA("Tool") then
-			if getgenv().UseMelee and string.find(item.Name, "Combat") or string.find(item.Name, "Style") then
-				plr.Character.Humanoid:EquipTool(item)
-				getgenv().CurrentWeapon = item.Name
-				break
-			elseif not getgenv().UseMelee and string.find(item.Name, "Sword") then
-				plr.Character.Humanoid:EquipTool(item)
-				getgenv().CurrentWeapon = item.Name
-				break
-			end
-		end
-	end
-end
-
---// Auto Farm loop
-task.spawn(function()
-	while task.wait(0.2) do
-		if getgenv().AutoFarm then
-			pcall(function()
-				EquipBestWeapon()
-				local enemy = nil
-				for _, v in pairs(workspace.Enemies:GetChildren()) do
-					if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-						enemy = v
-						break
-					end
-				end
-				if enemy then
-					plr.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
-					vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-					wait()
-					vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-				end
-			end)
-		end
-	end
-end)
--- PHẦN 6 - ESP, GUI Tab Navigation, Fruit Tab Khung
-
--- ESP Player + Fruit
-local function CreateESP(object, text, color)
-    local billboard = Instance.new("BillboardGui", object)
-    billboard.Size = UDim2.new(0, 100, 0, 40)
-    billboard.AlwaysOnTop = true
-    billboard.StudsOffset = Vector3.new(0, 2, 0)
-    billboard.Name = "ESP"
-
-    local label = Instance.new("TextLabel", billboard)
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.Text = text
-    label.BackgroundTransparency = 1
-    label.TextColor3 = color
-    label.TextStrokeTransparency = 0
-    label.Font = Enum.Font.SourceSansBold
-    label.TextScaled = true
-end
-
--- Auto ESP Logic
-spawn(function()
-    while wait(3) do
-        if getgenv().ESPPlayers then
-            for i, v in pairs(game.Players:GetPlayers()) do
-                if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and not v.Character:FindFirstChild("ESP") then
-                    CreateESP(v.Character.HumanoidRootPart, v.Name, Color3.fromRGB(0, 255, 0))
-                end
-            end
-        end
-
-        if getgenv().ESPFruits then
-            for i, v in pairs(game.Workspace:GetChildren()) do
-                if string.find(v.Name:lower(), "fruit") and not v:FindFirstChild("ESP") then
-                    CreateESP(v, v.Name, Color3.fromRGB(255, 0, 0))
-                end
-            end
-        end
-    end
-end)
-
--- Tab Navigation
-local tabs = {"Main", "Teleport", "Fruit", "ESP"}
-local currentTab = "Main"
-
-local tabButtons = {}
-for i, tabName in ipairs(tabs) do
-    local tabBtn = Instance.new("TextButton", frame)
-    tabBtn.Size = UDim2.new(0, 60, 0, 25)
-    tabBtn.Position = UDim2.new(0, 10 + ((i - 1) * 70), 0, 5)
-    tabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    tabBtn.Text = tabName
-    tabBtn.Font = Enum.Font.GothamBold
-    tabBtn.TextSize = 13
-    tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
-
-    tabButtons[tabName] = tabBtn
-
-    tabBtn.MouseButton1Click:Connect(function()
-        currentTab = tabName
-        for _, btn in pairs(tabButtons) do
-            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        end
-        tabBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-        for _, section in pairs(frame:GetChildren()) do
-            if section:IsA("Frame") and section.Name ~= "TopBar" then
-                section.Visible = (section.Name == tabName)
-            end
-        end
-    end)
-end
-
--- Tạo khung từng tab
-for _, name in pairs(tabs) do
-    local section = Instance.new("Frame", frame)
-    section.Name = name
-    section.Size = UDim2.new(1, -20, 1, -50)
-    section.Position = UDim2.new(0, 10, 0, 40)
-    section.BackgroundTransparency = 1
-    section.Visible = (name == "Main")
-end
-
--- Tạo toggle cho ESP Player
-local espPlayerBtn = Instance.new("TextButton", frame.ESP)
-espPlayerBtn.Size = UDim2.new(0, 220, 0, 35)
-espPlayerBtn.Position = UDim2.new(0, 15, 0, 10)
-espPlayerBtn.Text = "ESP Player: OFF"
-espPlayerBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-espPlayerBtn.TextColor3 = Color3.new(1, 1, 1)
-espPlayerBtn.Font = Enum.Font.Gotham
-espPlayerBtn.TextSize = 14
-Instance.new("UICorner", espPlayerBtn).CornerRadius = UDim.new(0, 6)
-espPlayerBtn.MouseButton1Click:Connect(function()
-    getgenv().ESPPlayers = not getgenv().ESPPlayers
-    espPlayerBtn.Text = getgenv().ESPPlayers and "ESP Player: ON" or "ESP Player: OFF"
-end)
-
--- ESP Fruits
-local espFruitBtn = Instance.new("TextButton", frame.ESP)
-espFruitBtn.Size = UDim2.new(0, 220, 0, 35)
-espFruitBtn.Position = UDim2.new(0, 15, 0, 60)
-espFruitBtn.Text = "ESP Fruit: OFF"
-espFruitBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-espFruitBtn.TextColor3 = Color3.new(1, 1, 1)
-espFruitBtn.Font = Enum.Font.Gotham
-espFruitBtn.TextSize = 14
-Instance.new("UICorner", espFruitBtn).CornerRadius = UDim.new(0, 6)
-espFruitBtn.MouseButton1Click:Connect(function()
-    getgenv().ESPFruits = not getgenv().ESPFruits
-    espFruitBtn.Text = getgenv().ESPFruits and "ESP Fruit: ON" or "ESP Fruit: OFF"
-end)
-function TweenToIsland(Position)
-	local tween_s = game:GetService("TweenService")
-	local tweeninfo = TweenInfo.new((game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Position.Position).Magnitude / 250, Enum.EasingStyle.Linear)
-	local tween = tween_s:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweeninfo, {CFrame = Position})
-	tween:Play()
-end
-
+-- PHẦN 6: DANH SÁCH CÁC ĐẢO FARM SEA 1
 local IslandPositions = {
 	["Bandit"] = CFrame.new(1060, 16, 1547),
 	["Monkey"] = CFrame.new(-1603, 65, 150),
@@ -308,209 +79,536 @@ local IslandPositions = {
 	["Brute"] = CFrame.new(-5020, 20, 4408),
 	["Desert Bandit"] = CFrame.new(932, 7, 4486),
 	["Desert Officer"] = CFrame.new(1572, 10, 4373),
-	["Snow Bandit"] = CFrame.new(1227, 90, -1442),
-	["Snowman"] = CFrame.new(1391, 87, -1306),
-	["Chief Petty Officer"] = CFrame.new(-4695, 20, -3724),
-	["Sky Bandit"] = CFrame.new(-4981, 717, -2622),
-	["Dark Master"] = CFrame.new(-5250, 385, -2270),
-	["Toga Warrior"] = CFrame.new(-2950, 392, -7191),
-	["Gladiator"] = CFrame.new(-2963, 392, -7299),
-	["Military Soldier"] = CFrame.new(-5407, 90, 8436),
-	["Military Spy"] = CFrame.new(-5820, 90, 8822),
-	["Fishman Warrior"] = CFrame.new(61121, 18, 1569),
-	["Fishman Commando"] = CFrame.new(61884, 18, 1496),
-	["God's Guard"] = CFrame.new(-4721, 845, -1912),
-	["Shanda"] = CFrame.new(-7685, 556, -5417),
-	["Royal Squad"] = CFrame.new(-7895, 563, -4964),
-	["Royal Soldier"] = CFrame.new(-7655, 563, -5290),
-	["Galley Pirate"] = CFrame.new(5581, 160, 8450),
-	["Galley Captain"] = CFrame.new(5742, 160, 8780)
+	["Snow Bandit"] = CFrame.new(1389, 87, -1297),
+	["Snowman"] = CFrame.new(1206, 144, -1326),
+	["Chief Petty Officer"] = CFrame.new(-4881, 20, 3914),
+	["Sky Bandit"] = CFrame.new(-4950, 295, -2886),
+	["Dark Master"] = CFrame.new(-5220, 430, -2272),
+	["Prisoner"] = CFrame.new(5100, 100, 4740),
+	["Dangerous Prisoner"] = CFrame.new(5200, 100, 4740),
+	["Toga Warrior"] = CFrame.new(-1790, 560, -2748),
+	["Gladiator"] = CFrame.new(-1295, 470, -3021),
+	["Military Soldier"] = CFrame.new(-5400, 90, 5800),
+	["Military Spy"] = CFrame.new(-5800, 90, 6000),
+	["Fishman Warrior"] = CFrame.new(60800, 20, 1500),
+	["Fishman Commando"] = CFrame.new(61000, 20, 1800),
+	["Wysper"] = CFrame.new(62000, 20, 1600),
+	["Magma Admiral"] = CFrame.new(-5000, 80, 8500),
+	["Arctic Warrior"] = CFrame.new(5600, 20, -6500),
+	["Snow Lurker"] = CFrame.new(5800, 30, -6700),
+	["Cyborg"] = CFrame.new(6200, 20, -7200)
 }
+-- PHẦN 7: LIÊN KẾT LEVEL VỚI QUÁI + TÊN NHIỆM VỤ
 local LevelToMob = {
-	{Level = 1, Mob = "Bandit", Quest = "BanditQuest1", LevelReq = 1, QuestPosition = CFrame.new(1060, 16, 1547), MobPosition = CFrame.new(1145, 17, 1635)},
-	{Level = 15, Mob = "Monkey", Quest = "JungleQuest", LevelReq = 15, QuestPosition = CFrame.new(-1602, 36, 152), MobPosition = CFrame.new(-1450, 66, 100)},
-	{Level = 20, Mob = "Gorilla", Quest = "JungleQuest", LevelReq = 20, QuestPosition = CFrame.new(-1602, 36, 152), MobPosition = CFrame.new(-1320, 40, -90)},
-	{Level = 30, Mob = "Pirate", Quest = "BuggyQuest1", LevelReq = 30, QuestPosition = CFrame.new(-1145, 5, 3828), MobPosition = CFrame.new(-1110, 6, 3930)},
-	{Level = 40, Mob = "Brute", Quest = "BuggyQuest1", LevelReq = 40, QuestPosition = CFrame.new(-1145, 5, 3828), MobPosition = CFrame.new(-1210, 6, 4070)},
-	{Level = 60, Mob = "Desert Bandit", Quest = "DesertQuest", LevelReq = 60, QuestPosition = CFrame.new(896, 7, 4389), MobPosition = CFrame.new(1050, 7, 4480)},
-	{Level = 75, Mob = "Desert Officer", Quest = "DesertQuest", LevelReq = 75, QuestPosition = CFrame.new(896, 7, 4389), MobPosition = CFrame.new(1572, 10, 4373)},
-	{Level = 90, Mob = "Snow Bandit", Quest = "SnowQuest", LevelReq = 90, QuestPosition = CFrame.new(1389, 87, -1297), MobPosition = CFrame.new(1227, 90, -1442)},
-	{Level = 105, Mob = "Snowman", Quest = "SnowQuest", LevelReq = 105, QuestPosition = CFrame.new(1389, 87, -1297), MobPosition = CFrame.new(1391, 87, -1306)},
-	{Level = 120, Mob = "Chief Petty Officer", Quest = "MarineQuest2", LevelReq = 120, QuestPosition = CFrame.new(-5035, 28, -3153), MobPosition = CFrame.new(-4695, 20, -3724)},
-	{Level = 150, Mob = "Sky Bandit", Quest = "SkyQuest", LevelReq = 150, QuestPosition = CFrame.new(-4842, 717, -2622), MobPosition = CFrame.new(-4981, 717, -2622)},
-	{Level = 175, Mob = "Dark Master", Quest = "SkyQuest", LevelReq = 175, QuestPosition = CFrame.new(-4842, 717, -2622), MobPosition = CFrame.new(-5250, 385, -2270)},
-	{Level = 190, Mob = "Toga Warrior", Quest = "ColosseumQuest", LevelReq = 190, QuestPosition = CFrame.new(-1576, 7, -2983), MobPosition = CFrame.new(-2950, 392, -7191)},
-	{Level = 225, Mob = "Gladiator", Quest = "ColosseumQuest", LevelReq = 225, QuestPosition = CFrame.new(-1576, 7, -2983), MobPosition = CFrame.new(-2963, 392, -7299)},
-	{Level = 250, Mob = "Military Soldier", Quest = "MagmaQuest", LevelReq = 250, QuestPosition = CFrame.new(-5316, 78, 8515), MobPosition = CFrame.new(-5407, 90, 8436)},
-	{Level = 275, Mob = "Military Spy", Quest = "MagmaQuest", LevelReq = 275, QuestPosition = CFrame.new(-5316, 78, 8515), MobPosition = CFrame.new(-5820, 90, 8822)},
-	{Level = 300, Mob = "Fishman Warrior", Quest = "FishmanQuest", LevelReq = 300, QuestPosition = CFrame.new(61122, 19, 1569), MobPosition = CFrame.new(61121, 18, 1569)},
-	{Level = 325, Mob = "Fishman Commando", Quest = "FishmanQuest", LevelReq = 325, QuestPosition = CFrame.new(61122, 19, 1569), MobPosition = CFrame.new(61884, 18, 1496)},
-	{Level = 375, Mob = "God's Guard", Quest = "SkyExp1Quest", LevelReq = 375, QuestPosition = CFrame.new(-4721, 845, -1912), MobPosition = CFrame.new(-4721, 845, -1912)},
-	{Level = 400, Mob = "Shanda", Quest = "SkyExp1Quest", LevelReq = 400, QuestPosition = CFrame.new(-4721, 845, -1912), MobPosition = CFrame.new(-7685, 556, -5417)},
-	{Level = 450, Mob = "Royal Squad", Quest = "SkyExp2Quest", LevelReq = 450, QuestPosition = CFrame.new(-7685, 556, -5417), MobPosition = CFrame.new(-7895, 563, -4964)},
-	{Level = 475, Mob = "Royal Soldier", Quest = "SkyExp2Quest", LevelReq = 475, QuestPosition = CFrame.new(-7685, 556, -5417), MobPosition = CFrame.new(-7655, 563, -5290)},
-	{Level = 500, Mob = "Galley Pirate", Quest = "FountainQuest", LevelReq = 500, QuestPosition = CFrame.new(5256, 39, 4050), MobPosition = CFrame.new(5581, 160, 8450)},
-	{Level = 525, Mob = "Galley Captain", Quest = "FountainQuest", LevelReq = 525, QuestPosition = CFrame.new(5256, 39, 4050), MobPosition = CFrame.new(5742, 160, 8780)}
+	{Level = 1, Mob = "Bandit", Quest = "BanditQuest1", LevelReq = 1},
+	{Level = 15, Mob = "Monkey", Quest = "JungleQuest", LevelReq = 15},
+	{Level = 20, Mob = "Gorilla", Quest = "JungleQuest", LevelReq = 20},
+	{Level = 30, Mob = "Pirate", Quest = "BuggyQuest1", LevelReq = 30},
+	{Level = 40, Mob = "Brute", Quest = "BuggyQuest1", LevelReq = 40},
+	{Level = 60, Mob = "Desert Bandit", Quest = "DesertQuest", LevelReq = 60},
+	{Level = 75, Mob = "Desert Officer", Quest = "DesertQuest", LevelReq = 75},
+	{Level = 90, Mob = "Snow Bandit", Quest = "SnowQuest", LevelReq = 90},
+	{Level = 105, Mob = "Snowman", Quest = "SnowQuest", LevelReq = 105},
+	{Level = 120, Mob = "Chief Petty Officer", Quest = "MarineQuest2", LevelReq = 120},
+	{Level = 130, Mob = "Sky Bandit", Quest = "SkyQuest", LevelReq = 130},
+	{Level = 145, Mob = "Dark Master", Quest = "SkyQuest", LevelReq = 145},
+	{Level = 190, Mob = "Prisoner", Quest = "PrisonerQuest", LevelReq = 190},
+	{Level = 210, Mob = "Dangerous Prisoner", Quest = "PrisonerQuest", LevelReq = 210},
+	{Level = 250, Mob = "Toga Warrior", Quest = "ColosseumQuest", LevelReq = 250},
+	{Level = 275, Mob = "Gladiator", Quest = "ColosseumQuest", LevelReq = 275},
+	{Level = 300, Mob = "Military Soldier", Quest = "MagmaQuest", LevelReq = 300},
+	{Level = 325, Mob = "Military Spy", Quest = "MagmaQuest", LevelReq = 325},
+	{Level = 375, Mob = "Fishman Warrior", Quest = "FishmanQuest", LevelReq = 375},
+	{Level = 400, Mob = "Fishman Commando", Quest = "FishmanQuest", LevelReq = 400},
+	{Level = 450, Mob = "Wysper", Quest = "SkyExp1", LevelReq = 450},
+	{Level = 475, Mob = "Magma Admiral", Quest = "SkyExp1", LevelReq = 475},
+	{Level = 525, Mob = "Arctic Warrior", Quest = "FrostQuest", LevelReq = 525},
+	{Level = 550, Mob = "Snow Lurker", Quest = "FrostQuest", LevelReq = 550},
+	{Level = 625, Mob = "Cyborg", Quest = "CyborQuest", LevelReq = 625}
 }
-function GetMobDataFromLevel()
-	local plrLevel = game.Players.LocalPlayer.Data.Level.Value
-	for i = #LevelToMob, 1, -1 do
-		if plrLevel >= LevelToMob[i].Level then
-			return LevelToMob[i]
+-- PHẦN 8: TÌM THÔNG TIN QUÁI PHÙ HỢP VỚI LEVEL HIỆN TẠI
+local function getMobData()
+	local level = plr.Data.Level.Value
+	local best
+	for _, data in ipairs(LevelToMob) do
+		if level >= data.LevelReq then
+			best = data
 		end
 	end
-	return LevelToMob[1]
+	return best
 end
-function AutoEquipWeapon()
-	local backpack = game.Players.LocalPlayer.Backpack:GetChildren()
-	for _, tool in pairs(backpack) do
+-- PHẦN 9: AUTO EQUIP VŨ KHÍ ƯU TIÊN (MELEE HOẶC SWORD)
+local function equipWeapon()
+	local tool = nil
+	for _, v in ipairs(plr.Backpack:GetChildren()) do
+		if getgenv().SelectedWeapon == "Melee" and v:IsA("Tool") and v.ToolTip == "Melee" then
+			tool = v
+		elseif getgenv().SelectedWeapon == "Sword" and v:IsA("Tool") and v.ToolTip == "Sword" then
+			tool = v
+		end
+	end
+	if tool then
+		tool.Parent = plr.Character
+	end
+end
+-- PHẦN 10: CHỨC NĂNG TWEEN ĐẾN VỊ TRÍ (DI CHUYỂN MƯỢT)
+local function tweenTo(cf)
+	local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local tween = ts:Create(hrp, TweenInfo.new((hrp.Position - cf.Position).Magnitude / 250, Enum.EasingStyle.Linear), {CFrame = cf})
+	tween:Play()
+	tween.Completed:Wait()
+end
+-- PHẦN 11: TWEEN TỚI ĐẢO DỰA TRÊN LEVEL
+local function tweenToIsland()
+	local data = getMobData()
+	if data and IslandPositions[data.Mob] then
+		tweenTo(IslandPositions[data.Mob])
+	end
+end
+-- PHẦN 12: CHỜ 3 GIÂY SAU KHI TỚI ĐẢO
+local function waitBeforeQuest()
+	task.wait(3)
+end
+-- PHẦN 13: NHẬN NHIỆM VỤ TỰ ĐỘNG
+local function autoQuest()
+	local data = getMobData()
+	if not data then return end
+
+	local args = {
+		[1] = "StartQuest",
+		[2] = data.Quest,
+		[3] = 1
+	}
+	game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+end
+-- PHẦN 14: BAY TỚI QUÁI & TẠO BLOCK ẢO DƯỚI CHÂN
+local function flyToMob(mobName)
+	local mob = nil
+	for _, v in ipairs(workspace.Enemies:GetChildren()) do
+		if v.Name == mobName and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+			mob = v
+			break
+		end
+	end
+	if not mob then return end
+
+	local pos = mob.HumanoidRootPart.Position + Vector3.new(0, 10, 0)
+	tweenTo(CFrame.new(pos))
+
+	-- Tạo block ảo dưới chân
+	if not workspace:FindFirstChild("AntiFallPlatform") then
+		local part = Instance.new("Part", workspace)
+		part.Name = "AntiFallPlatform"
+		part.Size = Vector3.new(8, 1, 8)
+		part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+		part.Anchored = true
+		part.Transparency = 1
+		part.CanCollide = true
+	end
+end
+-- PHẦN 15: AUTO ATTACK (CLICK THẬT)
+local function autoClick()
+	vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+	task.wait()
+	vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+end
+-- PHẦN 16 (SỬA): AUTO EQUIP VŨ KHÍ (FULL MELEE & SWORD TRONG BLOX FRUIT)
+local MeleeList = {
+    "Combat", "Black Leg", "Dark Step", "Electro", "Electric", "Electric Claw", "Dragon Talon",
+    "Superhuman", "Sharkman Karate", "Death Step", "Godhuman", "Water Kung Fu"
+}
+
+local SwordList = {
+    "Katana", "Dual Katana", "Iron Mace", "Triple Katana", "Pipe", "Dual-Headed Blade", "Bisento",
+    "Shark Blade", "Saber", "Pole", "Midnight Blade", "Rengoku", "Yama", "Tushita", "Buddy Sword",
+    "Cursed Dual Katana", "Spikey Trident", "Dark Dagger", "Canvander", "Hell Sword"
+}
+
+local function autoEquipWeapon()
+	local backpack = plr.Backpack:GetChildren()
+	local char = plr.Character
+
+	for _, tool in ipairs(backpack) do
 		if tool:IsA("Tool") then
-			if getgenv().UseMelee and string.find(tool.Name, "Style") then
-				game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
-				return
-			elseif not getgenv().UseMelee and string.find(tool.Name, "Sword") then
-				game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
-				return
-			end
-		end
-	end
-end
-function AutoFarm()
-	local mobData = GetMobDataFromLevel()
-	if mobData then
-		local mob = mobData.Mob
-		local pos = IslandPositions[mob]
-		if pos then
-			TweenToIsland(pos + Vector3.new(0, 50, 0))
-			wait(3)
-		end
-
-		game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", mobData.Quest, 1)
-
-		while getgenv().AutoFarm and wait() do
-			local mobs = game.Workspace.Enemies:GetChildren()
-			for _, v in pairs(mobs) do
-				if v.Name == mob and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-					AimPos = v.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-					AutoEquipWeapon()
-					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(AimPos)
-					-- Click thật
-					local VirtualUser = game:GetService("VirtualUser")
-					VirtualUser:CaptureController()
-					VirtualUser:ClickButton1(Vector2.new())
+			if getgenv().UseMelee then
+				for _, v in ipairs(MeleeList) do
+					if string.find(tool.Name, v) then
+						char.Humanoid:EquipTool(tool)
+						return
+					end
+				end
+			else
+				for _, v in ipairs(SwordList) do
+					if string.find(tool.Name, v) then
+						char.Humanoid:EquipTool(tool)
+						return
+					end
 				end
 			end
 		end
 	end
 end
-local AutoFarmBtn = createButton("Auto Farm: OFF", 50, function()
-	getgenv().AutoFarm = not getgenv().AutoFarm
-	AutoFarmBtn.Text = getgenv().AutoFarm and "Auto Farm: ON" or "Auto Farm: OFF"
-	if getgenv().AutoFarm then
-		task.spawn(AutoFarm)
-	end
-end)
-local SelectWeaponBtn = createButton("Weapon: Melee 🥋", 100, function()
-	getgenv().UseMelee = not getgenv().UseMelee
-	SelectWeaponBtn.Text = getgenv().UseMelee and "Weapon: Melee 🥋" or "Weapon: Sword ⚔️"
-end)
-function GetTargetMobQuestAndIsland()
-	local playerLevel = game.Players.LocalPlayer.Data.Level.Value
-	local selectedData = nil
-
-	for i, data in ipairs(LevelToMob) do
-		if playerLevel >= data.LevelReq then
-			selectedData = data
+-- PHẦN 17: RESET BLOCK ẢO KHI TẮT FARM
+local function removeFakePlatform()
+	local p = workspace:FindFirstChild("AntiFallPlatform")
+	if p then p:Destroy() end
+end
+-- PHẦN 18: FARM TOÀN BỘ QUÁI TRONG MỘT NHIỆM VỤ
+local function farmMob(mobName)
+	for _, mob in pairs(workspace.Enemies:GetChildren()) do
+		if mob.Name == mobName and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+			flyToMob(mobName)
+			while mob and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and getgenv().AutoFarm do
+				autoEquipWeapon()
+				autoClick()
+				task.wait()
+			end
 		end
 	end
-
-	if selectedData then
-		local mobName = selectedData.Mob
-		local questName = selectedData.Quest
-		local islandCFrame = IslandPositions[mobName] or CFrame.new(0, 0, 0)
-
-		return mobName, questName, islandCFrame
+end
+-- PHẦN 19: MAIN AUTO FARM LOOP
+task.spawn(function()
+	while task.wait(0.1) do
+		if getgenv().AutoFarm then
+			local data = getMobData()
+			if data then
+				tweenToIsland()
+				waitBeforeQuest()
+				autoQuest()
+				farmMob(data.Mob)
+			end
+		else
+			removeFakePlatform()
+		end
 	end
-
-	return nil, nil, CFrame.new(0, 0, 0)
-end
--- PHẦN 20: Hàm Tween đến đảo phù hợp
-function TweenToIsland()
-    local mobName, questName, islandCFrame = GetTargetMobQuestAndIsland()
-    if islandCFrame then
-        local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local tweenInfo = TweenInfo.new((hrp.Position - islandCFrame.Position).Magnitude / 200, Enum.EasingStyle.Linear)
-            local tween = tweenService:Create(hrp, tweenInfo, {CFrame = islandCFrame + Vector3.new(0, 10, 0)})
-            tween:Play()
-            tween.Completed:Wait()
+end)
+-- PHẦN 21: ESP Người chơi
+local function CreateESPPlayer()
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= plr and not v.Character:FindFirstChild("ESPTag") then
+            local esp = Instance.new("BillboardGui", v.Character:WaitForChild("Head"))
+            esp.Name = "ESPTag"
+            esp.Size = UDim2.new(0, 100, 0, 40)
+            esp.AlwaysOnTop = true
+            local text = Instance.new("TextLabel", esp)
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.Text = v.Name
+            text.TextColor3 = Color3.fromRGB(0, 255, 0)
+            text.TextScaled = true
+            text.BackgroundTransparency = 1
+            text.Font = Enum.Font.SourceSansBold
         end
     end
 end
 
--- PHẦN 21: Auto nhận nhiệm vụ từ NPC
-function AutoClaimQuest()
-    local mobName, questName, islandCFrame = GetTargetMobQuestAndIsland()
-    if questName then
-        tweenService:Create(plr.Character.HumanoidRootPart, TweenInfo.new(1), {CFrame = islandCFrame}):Play()
-        task.wait(1)
-        rep.Remotes.CommF_:InvokeServer("StartQuest", questName, 1)
-        task.wait(0.5)
-    end
-end
-
--- PHẦN 22: Farm quái với hitbox lớn, đứng trên đầu
-function FarmMobs()
-    local mobName = GetTargetMobQuestAndIsland()
-    for _, mob in pairs(workspace.Enemies:GetChildren()) do
-        if mob.Name == mobName and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-            local hrp = mob.HumanoidRootPart
-            hrp.Size = Vector3.new(60, 60, 60)
-            hrp.CanCollide = false
-            hrp.Transparency = 0.5
-            plr.Character.HumanoidRootPart.CFrame = hrp.CFrame + Vector3.new(0, 5, 0)
-            while mob.Humanoid.Health > 0 and getgenv().AutoFarm do
-                vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                task.wait(0.1)
-                vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-            end
+-- PHẦN 22: ESP Trái ác quỷ
+local function CreateESPFruit()
+    for _, v in pairs(game.Workspace:GetChildren()) do
+        if string.find(v.Name, "Fruit") and not v:FindFirstChild("ESPTag") then
+            local esp = Instance.new("BillboardGui", v)
+            esp.Name = "ESPTag"
+            esp.Size = UDim2.new(0, 100, 0, 40)
+            esp.AlwaysOnTop = true
+            local text = Instance.new("TextLabel", esp)
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.Text = v.Name
+            text.TextColor3 = Color3.fromRGB(255, 0, 0)
+            text.TextScaled = true
+            text.BackgroundTransparency = 1
+            text.Font = Enum.Font.SourceSansBold
         end
     end
 end
 
--- PHẦN 23: Auto equip vũ khí phù hợp
+-- PHẦN 23: ESP Đảo
+local function CreateESPIsland()
+    for name, cframe in pairs(IslandPositions) do
+        local part = Instance.new("Part", workspace)
+        part.Anchored = true
+        part.CanCollide = false
+        part.Transparency = 1
+        part.CFrame = cframe
+        part.Size = Vector3.new(1,1,1)
+        local esp = Instance.new("BillboardGui", part)
+        esp.Name = "ESPTag"
+        esp.Size = UDim2.new(0, 100, 0, 40)
+        esp.AlwaysOnTop = true
+        local text = Instance.new("TextLabel", esp)
+        text.Size = UDim2.new(1, 0, 1, 0)
+        text.Text = name
+        text.TextColor3 = Color3.fromRGB(0, 255, 255)
+        text.TextScaled = true
+        text.BackgroundTransparency = 1
+        text.Font = Enum.Font.SourceSansBold
+    end
+end
+
+-- PHẦN 24: Auto Nhặt Trái
+local function AutoPickupFruit()
+    for _, obj in pairs(game.Workspace:GetChildren()) do
+        if string.find(obj.Name, "Fruit") and obj:IsA("Tool") then
+            firetouchinterest(plr.Character.HumanoidRootPart, obj.Handle, 0)
+            firetouchinterest(plr.Character.HumanoidRootPart, obj.Handle, 1)
+        end
+    end
+end
+
+-- PHẦN 25: Fruit Stock từ xa (mở từ xa stock thường)
+local function OpenFruitStock()
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
+end
+
+-- PHẦN 26: Mở Stock Mirage từ xa (nếu có)
+local function OpenMirageStock()
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("MirageIslandStock")
+end
 function AutoEquipWeapon()
-    local desired = getgenv().UseMelee and meleeList or swordList
-    for _, tool in pairs(plr.Backpack:GetChildren()) do
-        if table.find(desired, tool.Name) then
-            plr.Character.Humanoid:EquipTool(tool)
-            break
+    local toolPriority = {
+        -- Melee (Combat styles / Fighting styles)
+        "Combat", "Black Leg", "Electro", "Fishman Karate", "Dragon Breath", "Superhuman",
+        "Death Step", "Sharkman Karate", "Electric Claw", "Dragon Talon", "Godhuman",
+
+        -- Sword (Legendary, Mythical, Rare)
+        "Katana", "Dual Katana", "Cutlass", "Iron Mace", "Triple Katana", "Dual-Headed Blade", 
+        "Pipe", "Soul Cane", "Shark Saw", "Trident", "Longsword", "Saber", "Bisento", 
+        "Midnight Blade", "Rengoku", "Canvander", "Buddy Sword", "Hallow Scythe", 
+        "Tushita", "Yama", "Cursed Dual Katana", "Dark Blade", "Spikey Trident", "Pole", 
+        "True Triple Katana", "Twin Hooks", "Koko"
+    }
+
+    for _, toolName in ipairs(toolPriority) do
+        for _, item in ipairs(plr.Backpack:GetChildren()) do
+            if item:IsA("Tool") and item.Name == toolName then
+                plr.Character.Humanoid:EquipTool(item)
+                return
+            end
+        end
+    end
+end
+--// PHẦN 28: BLOCK ẢO DƯỚI CHÂN (Anti Rơi Biển)
+function CreatePlatformUnder()
+    if not workspace:FindFirstChild("AntiFallPlatform") then
+        local part = Instance.new("Part", workspace)
+        part.Name = "AntiFallPlatform"
+        part.Anchored = true
+        part.Size = Vector3.new(60, 1, 60)
+        part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0, 4, 0)
+        part.Transparency = 1
+        part.CanCollide = true
+    end
+end
+
+--// PHẦN 29: NHẬN QUEST
+function GetQuest(questName, levelReq)
+    local npc = FindNearestNPC(questName)
+    if npc and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        repeat
+            task.wait()
+            TweenTo(npc.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0))
+        until (plr.Character.HumanoidRootPart.Position - npc.HumanoidRootPart.Position).Magnitude < 10
+
+        task.wait(0.5)
+        game.ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questName, levelReq)
+    end
+end
+
+--// PHẦN 30: TÌM NPC GẦN NHẤT
+function FindNearestNPC(name)
+    for _, npc in pairs(workspace:GetDescendants()) do
+        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("HumanoidRootPart") then
+            if string.find(npc.Name, name) then
+                return npc
+            end
         end
     end
 end
 
--- PHẦN 24: Kết hợp Auto Attack và Skill nếu cần
-spawn(function()
-    while task.wait(0.2) do
-        if getgenv().AutoFarm then
-            AutoEquipWeapon()
-            local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                hrp.CFrame = hrp.CFrame -- giữ vị trí
-                vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                task.wait()
-                vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+--// PHẦN 31: TÌM QUÁI GẦN NHẤT ĐỂ FARM
+function GetClosestMob(mobName)
+    local closest, dist = nil, math.huge
+    for _, mob in pairs(workspace.Enemies:GetChildren()) do
+        if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and string.find(mob.Name, mobName) then
+            local d = (mob.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+            if d < dist then
+                dist = d
+                closest = mob
             end
+        end
+    end
+    return closest
+end
+
+--// PHẦN 32: AUTO FARM CHÍNH
+function AutoFarmLogic()
+    local level = plr.Data.Level.Value
+    for _, data in ipairs(LevelToMob) do
+        if level >= data.LevelReq then
+            local island = IslandPositions[data.Mob]
+            if island then
+                TweenTo(island)
+                task.wait(3)
+                GetQuest(data.Quest, 1)
+                task.wait(1)
+
+                while getgenv().AutoFarm do
+                    local mob = GetClosestMob(data.Mob)
+                    if mob and mob:FindFirstChild("HumanoidRootPart") then
+                        CreatePlatformUnder()
+                        AutoEquipWeapon()
+                        TweenTo(mob.HumanoidRootPart.CFrame + Vector3.new(0, 15, 0))
+                        repeat
+                            task.wait()
+                            vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                            task.wait()
+                            vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                        until mob.Humanoid.Health <= 0 or not getgenv().AutoFarm
+                    else
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+--// PHẦN 33: LOOP FARM
+task.spawn(function()
+    while task.wait(1) do
+        if getgenv().AutoFarm then
+            pcall(AutoFarmLogic)
         end
     end
 end)
 
--- PHẦN 25: Tổng hợp hành động Auto Farm chính
-function StartAutoFarm()
-    while getgenv().AutoFarm do
-        TweenToIsland()
-        AutoClaimQuest()
-        FarmMobs()
-        task.wait(1)
+--// PHẦN 34: XÓA BLOCK ẢO KHI TẮT FARM
+task.spawn(function()
+    while task.wait(1) do
+        if not getgenv().AutoFarm and workspace:FindFirstChild("AntiFallPlatform") then
+            workspace:FindFirstChild("AntiFallPlatform"):Destroy()
+        end
+    end
+end)
+
+--// PHẦN 35: AUTO EQUIP KHI TẮT VŨ KHÍ BẤT NGỜ
+task.spawn(function()
+    while task.wait(1) do
+        if getgenv().AutoFarm and not plr.Character:FindFirstChildOfClass("Tool") then
+            AutoEquipWeapon()
+        end
+    end
+end)
+-- PHẦN 36-37: Tabs và chuyển tab GUI
+local Tabs = {"Main", "TP", "Fruit", "ESP"}
+local currentTab = "Main"
+local tabFrames = {}
+
+for i, tabName in ipairs(Tabs) do
+    local tabBtn = Instance.new("TextButton", frame)
+    tabBtn.Size = UDim2.new(0, 60, 0, 25)
+    tabBtn.Position = UDim2.new(0, 10 + (i - 1) * 65, 0, 40)
+    tabBtn.Text = tabName
+    tabBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    tabBtn.TextColor3 = Color3.new(1, 1, 1)
+    tabBtn.Font = Enum.Font.Gotham
+    tabBtn.TextSize = 13
+    Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
+
+    local tabFrame = Instance.new("Frame", frame)
+    tabFrame.Size = UDim2.new(1, -20, 1, -80)
+    tabFrame.Position = UDim2.new(0, 10, 0, 70)
+    tabFrame.BackgroundTransparency = 1
+    tabFrame.Visible = (tabName == currentTab)
+    tabFrames[tabName] = tabFrame
+
+    tabBtn.MouseButton1Click:Connect(function()
+        for t, f in pairs(tabFrames) do
+            f.Visible = (t == tabName)
+        end
+        currentTab = tabName
+    end)
+end
+
+-- PHẦN 38-41: Auto Equip Weapon (Sword + Melee)
+function autoEquipWeapon()
+    local backpack = player.Backpack:GetChildren()
+    for _, tool in ipairs(backpack) do
+        if tool:IsA("Tool") then
+            local name = tool.Name:lower()
+            if (getgenv().UseMelee and (name:find("style") or name:find("combat") or name:find("karate") or name:find("dragon"))) or
+               (not getgenv().UseMelee and (name:find("sword") or name:find("blade") or name:find("katana"))) then
+                player.Character.Humanoid:EquipTool(tool)
+                break
+            end
+        end
     end
 end
+
+-- PHẦN 42-45: Toggle chọn Weapon bằng Dropdown
+local weaponDrop = Instance.new("TextButton", tabFrames["Main"])
+weaponDrop.Size = UDim2.new(0, 200, 0, 35)
+weaponDrop.Position = UDim2.new(0, 15, 0, 10)
+weaponDrop.Text = "Weapon: Melee 🥋"
+weaponDrop.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+weaponDrop.TextColor3 = Color3.new(1, 1, 1)
+weaponDrop.Font = Enum.Font.Gotham
+weaponDrop.TextSize = 14
+Instance.new("UICorner", weaponDrop).CornerRadius = UDim.new(0, 6)
+
+weaponDrop.MouseButton1Click:Connect(function()
+    getgenv().UseMelee = not getgenv().UseMelee
+    weaponDrop.Text = getgenv().UseMelee and "Weapon: Melee 🥋" or "Weapon: Sword ⚔️"
+end)
+-- 🌟 PART 46–60: AUTO FARM FULL TÍNH NĂNG (SEA 1)
+
+-- 📌 Config
+getgenv().AutoFarm = false
+getgenv().SelectedWeaponType = "Melee" -- Hoặc "Sword"
+getgenv().AutoEquip = true
+getgenv().EnableESP = {
+    Player = false,
+    Fruit = false,
+    Island = false
+}
+
+-- 📦 DANH SÁCH TẤT CẢ VÕ + KIẾM
+local MeleeList = {
+    "Combat", "Black Leg", "Electro", "Water Kung Fu", "Dragon Claw",
+    "Dragon Talon", "Electric Claw", "Sharkman Karate", "Superhuman",
+    "Death Step", "Godhuman"
+}
+local SwordList = {
+    "Katana", "Cutlass", "Iron Mace", "Dual Katana", "Triple Katana",
+    "Pipe", "Dual-Headed Blade", "Bisento", "Shark Blade", "Longsword",
+    "Warden's Sword", "Soul Cane", "Trident", "Gravity Cane", "Jitte",
+    "Twin Hooks", "Rengoku", "Saber", "Midnight Blade", "Yama",
+    "Tushita", "Dark Blade", "Buddy Sword", "Hallow Scythe",
+    "Cursed Dual Katana"
+}
+
+-- 🔁 AUTO EQUIP WEAPON
+function AutoEquipWeapon()
+    local backpack = game.Players.LocalPlayer.Backpack:GetChildren()
+    for _, tool in ipairs(backpack) do
+        if tool:IsA("Tool") then
+            if getgenv().SelectedWeaponType == "Melee" then
+                for _, name in ipairs(MeleeList) do
+                    if string.find(tool.Name, name) then
+                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
+                        return
+                    end
+                end
+            elseif getgenv().SelectedWeaponType == "Sword" then
+                for _, name in ipairs(SwordList) do
+                    if string.find(tool.Name, name) then
+                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
+                        return
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- 🧠 Gợi ý: Đặt AutoEquipWeapon() vào vòng lặp farm để auto cầm lại vũ khí nếu bị rớt
