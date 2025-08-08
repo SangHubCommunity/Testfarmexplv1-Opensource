@@ -612,3 +612,438 @@ function AutoEquipWeapon()
 end
 
 -- 🧠 Gợi ý: Đặt AutoEquipWeapon() vào vòng lặp farm để auto cầm lại vũ khí nếu bị rớt
+-- PHAN 61
+local function IncreaseHitbox(mob)
+    if mob and mob:FindFirstChild("HumanoidRootPart") then
+        mob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+        mob.HumanoidRootPart.Transparency = 0.7
+        mob.HumanoidRootPart.Material = Enum.Material.Neon
+        mob.HumanoidRootPart.CanCollide = false
+    end
+end
+
+-- PHAN 62
+local function AutoEquip()
+    local Backpack = plr.Backpack:GetChildren()
+    for _, tool in pairs(Backpack) do
+        if tool:IsA("Tool") then
+            if getgenv().UseMelee and (tool.Name:find("Style") or tool.Name:find("Combat") or tool.Name:find("Karate") or tool.Name:find("Fighting")) then
+                plr.Character.Humanoid:EquipTool(tool)
+                break
+            elseif not getgenv().UseMelee and tool.Name:find("Sword") then
+                plr.Character.Humanoid:EquipTool(tool)
+                break
+            end
+        end
+    end
+end
+
+-- PHAN 63
+local function GetNearestMob(mobName)
+    local mobs = {}
+    for _, mob in pairs(workspace.Enemies:GetChildren()) do
+        if mob.Name == mobName and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+            table.insert(mobs, mob)
+        end
+    end
+    return mobs
+end
+
+-- PHAN 64
+local function BringMobs(mobName)
+    for _, mob in pairs(workspace.Enemies:GetChildren()) do
+        if mob.Name == mobName and mob:FindFirstChild("HumanoidRootPart") then
+            mob.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+            IncreaseHitbox(mob)
+        end
+    end
+end
+
+-- PHAN 65
+local function QuestCompleted()
+    local Quest = plr.PlayerGui.Main:FindFirstChild("Quest")
+    return Quest and (Quest.Visible == false or Quest.Title.Text:find("Complete"))
+end
+
+-- PHAN 66
+local function AutoQuest()
+    local myLevel = plr.Data.Level.Value
+    for _, info in pairs(LevelToMob) do
+        if myLevel >= info.LevelReq then
+            CurrentQuest = info
+        end
+    end
+    if CurrentQuest then
+        local npc = workspace:FindFirstChild(CurrentQuest.Quest)
+        if npc then
+            Tweento(npc.Head.CFrame)
+            task.wait(2)
+            game.ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", CurrentQuest.Quest, 1)
+        end
+    end
+end
+
+-- PHAN 67
+local function StartFarmLoop()
+    task.spawn(function()
+        while getgenv().AutoFarm do
+            pcall(function()
+                local myLevel = plr.Data.Level.Value
+                AutoEquip()
+                AutoQuest()
+                local mobs = GetNearestMob(CurrentQuest.Mob)
+                for _, mob in pairs(mobs) do
+                    if mob and mob:FindFirstChild("HumanoidRootPart") then
+                        repeat
+                            Tweento(mob.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0))
+                            BringMobs(CurrentQuest.Mob)
+                            AutoClick()
+                            task.wait()
+                        until not getgenv().AutoFarm or mob.Humanoid.Health <= 0 or QuestCompleted()
+                    end
+                end
+            end)
+            task.wait(0.5)
+        end
+    end)
+end
+
+-- PHAN 68
+local function AutoCollectFruit()
+    for _, fruit in pairs(game.Workspace:GetChildren()) do
+        if fruit:IsA("Tool") and fruit:FindFirstChild("Handle") then
+            firetouchinterest(plr.Character.HumanoidRootPart, fruit.Handle, 0)
+            task.wait(0.1)
+            firetouchinterest(plr.Character.HumanoidRootPart, fruit.Handle, 1)
+        end
+    end
+end
+
+-- PHAN 69
+task.spawn(function()
+    while task.wait(5) do
+        if getgenv().AutoCollectFruit then
+            AutoCollectFruit()
+        end
+    end
+end)
+
+-- PHAN 70
+task.spawn(function()
+    while task.wait(1) do
+        if getgenv().AutoFarm then
+            StartFarmLoop()
+        end
+    end
+end)
+-- Phần 71: Tự động nhặt trái ác quỷ
+function AutoCollectFruit()
+    for _,v in pairs(game.Workspace:GetDescendants()) do
+        if v:IsA("Tool") and string.find(v.Name:lower(), "fruit") then
+            repeat wait()
+                pcall(function()
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Handle.CFrame
+                end)
+            until not v.Parent or not getgenv().AutoCollectFruit
+        end
+    end
+end
+
+-- Phần 72: Bật Auto Collect Fruit
+spawn(function()
+    while wait(5) do
+        if getgenv().AutoCollectFruit then
+            AutoCollectFruit()
+        end
+    end
+end)
+
+-- Phần 73: Mở Stock trái từ xa (Fruit Stock)
+function OpenStock()
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
+end
+
+-- Phần 74: Tự động bỏ trái vào kho
+function AutoStoreFruit()
+    local fruits = {"Bomb-Bomb", "Spin-Spin", "Chop-Chop", "Spring-Spring", "Kilo-Kilo"}
+    for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+        if table.find(fruits, v.Name) then
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", v.Name)
+        end
+    end
+end
+
+-- Phần 75: Tự động chạy chức năng AutoStoreFruit mỗi 10 giây
+spawn(function()
+    while wait(10) do
+        if getgenv().AutoStoreFruit then
+            AutoStoreFruit()
+        end
+    end
+end)
+-- Phần 75 đã có ở trước (AutoStoreFruit loop)
+
+-- Phần 76: Tự động bật vũ khí (ưu tiên võ nếu có)
+function AutoEquipWeapon()
+-- Danh sách đầy đủ võ & kiếm
+    local AllWeapons = {
+    -- Võ (Fighting Styles)
+    "Combat", "Dark Step", "Electro", "Water Kung Fu", "Dragon Breath", "Superhuman",
+    "Death Step", "Sharkman Karate", "Electric Claw", "Dragon Talon", "Godhuman",
+
+    -- Kiếm (Swords)
+    "Katana", "Cutlass", "Iron Mace", "Dual Katana", "Triple Katana",
+    "Pipe", "Dual-Headed Blade", "Bisento", "Shark Saw", "Soul Cane",
+    "Trident", "Pole", "Pole (2nd Form)", "Saber", "Midnight Blade",
+    "Rengoku", "Canvander", "Buddy Sword", "Yama", "Tushita",
+    "Shisui", "Wando", "Saddi", "True Triple Katana", "Cursed Dual Katana",
+    "Dark Blade", "Gravity Cane", "Longsword"
+}
+
+-- Ưu tiên võ nếu có
+function AutoEquipWeapon()
+    local player = game.Players.LocalPlayer
+    for _, name in pairs(AllWeapons) do
+        local tool = player.Backpack:FindFirstChild(name)
+        if tool then
+            player.Character.Humanoid:EquipTool(tool)
+            break
+        end
+    end
+end
+
+-- Gắn Auto Equip khi đang farm
+spawn(function()
+    while task.wait(1) do
+        if getgenv().AutoFarm then
+            pcall(function()
+                AutoEquipWeapon()
+            end)
+        end
+    end
+end)    
+
+-- Phần 78: Hitbox mở rộng để dễ farm
+function ExpandHitbox(monster)
+    pcall(function()
+        for _,v in pairs(monster:GetChildren()) do
+            if v:IsA("MeshPart") or v:IsA("Part") then
+                v.Size = Vector3.new(60, 60, 60)
+                v.Transparency = 0.5
+                v.Material = Enum.Material.Neon
+                v.BrickColor = BrickColor.new("Bright red")
+            end
+        end
+    end)
+end
+
+-- Phần 79: Gắn hitbox vào toàn bộ quái
+spawn(function()
+    while wait(2) do
+        if getgenv().AutoFarm then
+            for _,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                ExpandHitbox(v)
+            end
+        end
+    end
+end)
+
+-- Phần 80: Tạo block ảo dưới chân để đứng farm giữa không trung
+function CreateInvisiblePlatform()
+    if not workspace:FindFirstChild("SangHub_FloatBlock") then
+        local part = Instance.new("Part", workspace)
+        part.Anchored = true
+        part.Size = Vector3.new(60, 1, 60)
+        part.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+        part.Name = "SangHub_FloatBlock"
+        part.Transparency = 1
+        part.CanCollide = true
+    else
+        workspace.SangHub_FloatBlock.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 3.5, 0)
+    end
+end
+
+-- Phần 81: Loop tạo block khi đang farm
+spawn(function()
+    while wait(0.5) do
+        if getgenv().AutoFarm then
+            pcall(function()
+                CreateInvisiblePlatform()
+            end)
+        else
+            if workspace:FindFirstChild("SangHub_FloatBlock") then
+                workspace.SangHub_FloatBlock:Destroy()
+            end
+        end
+    end
+end)
+
+-- Phần 82: Ngừng attack khi gần NPC Quest
+function IsNearQuestNPC()
+    for _, npc in pairs(workspace:GetChildren()) do
+        if npc:FindFirstChild("HumanoidRootPart") and npc.Name:lower():find("quest") then
+            local dist = (npc.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= 15 then return true end
+        end
+    end
+    return false
+end
+
+-- Phần 83: Auto click attack (real click)
+function AutoClick()
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+    task.wait()
+    vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+end
+
+-- Phần 84: Loop auto click nếu farm
+spawn(function()
+    while task.wait(0.15) do
+        if getgenv().AutoFarm and not IsNearQuestNPC() then
+            AutoClick()
+        end
+    end
+end)
+
+-- Phần 85: Chỉnh hệ tọa độ đánh từ trên cao
+function GetAboveMobPos(mob)
+    return mob.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
+end
+-- 86. Tạo block ảo dưới chân khi farm
+function CreateFloatingBlock()
+    if not workspace:FindFirstChild("SangHub_Float") then
+        local part = Instance.new("Part", workspace)
+        part.Anchored = true
+        part.Size = Vector3.new(10, 1, 10)
+        part.Transparency = 1
+        part.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 3, 0)
+        part.Name = "SangHub_Float"
+    end
+end
+
+-- 87. Xóa block khi tắt farm
+function RemoveFloatingBlock()
+    local part = workspace:FindFirstChild("SangHub_Float")
+    if part then part:Destroy() end
+end
+
+-- 88. Tăng hitbox quái
+function IncreaseHitbox(enemy)
+    pcall(function()
+        for _, part in pairs(enemy:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.Size = Vector3.new(50, 50, 50)
+                part.Transparency = 0.7
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+
+-- 89. Ghim vị trí trên đầu quái
+function FlyAboveEnemy(enemy)
+    local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if hrp and enemy and enemy:FindFirstChild("HumanoidRootPart") then
+        local offset = Vector3.new(0, 10, 0)
+        hrp.CFrame = enemy.HumanoidRootPart.CFrame + offset
+    end
+end
+
+-- 90. Chờ quái spawn sau khi đến đảo
+function WaitForMobSpawn(mobName)
+    repeat
+        task.wait(0.5)
+        mob = FindMob(mobName)
+    until mob
+end
+
+-- 91. Không nhận nhiệm vụ mới nếu chưa xong nhiệm vụ
+function IsQuestComplete()
+    local quest = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("QuestGUI")
+    return quest and quest.Enabled == false
+end
+
+-- 92. Ghim Auto Attack
+function AutoAttack()
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+    task.wait()
+    vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+end
+
+-- 93. Không Sit nếu đang ngồi
+function PreventSit()
+    local human = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    if human and human.Sit then
+        human.Sit = false
+    end
+end
+
+-- 94. Farm tất cả đảo Sea 1
+function GetMobByLevel(level)
+    for i = #LevelToMob, 1, -1 do
+        if level >= LevelToMob[i].LevelReq then
+            return LevelToMob[i]
+        end
+    end
+    return nil
+end
+
+-- 95. Tự động nhận quest nếu chưa có
+function RequestQuest(questName)
+    local args = {
+        [1] = "StartQuest",
+        [2] = questName,
+        [3] = 1
+    }
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+end
+
+-- 96. Auto Farm Loop hoàn chỉnh
+spawn(function()
+    while task.wait(1) do
+        if getgenv().AutoFarm then
+            pcall(function()
+                local level = game.Players.LocalPlayer.Data.Level.Value
+                local mobInfo = GetMobByLevel(level)
+                if not mobInfo then return end
+
+                if not IsQuestComplete() then return end
+                if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("QuestGUI") == nil then
+                    TweenTo(NPCQuestPosition[mobInfo.Mob])
+                    task.wait(3)
+                    RequestQuest(mobInfo.Quest)
+                    return
+                end
+
+                local mob = FindMob(mobInfo.Mob)
+                if mob and mob:FindFirstChild("HumanoidRootPart") then
+                    CreateFloatingBlock()
+                    IncreaseHitbox(mob)
+                    FlyAboveEnemy(mob)
+                    PreventSit()
+                    AutoEquipWeapon()
+                    AutoAttack()
+                else
+                    WaitForMobSpawn(mobInfo.Mob)
+                end
+            end)
+        else
+            RemoveFloatingBlock()
+        end
+    end
+end)
+
+-- 97. Tự Equip Weapon đã tích hợp ở phần trước
+
+-- 98. Tự động disable Idle
+for _, v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+    v:Disable()
+end
+
+-- 99. Chức năng TweenTo đã có từ trước
+-- Đảm bảo TweenTo(targetCFrame) đã tồn tại
+
+-- 100. Final print log
+print("✅ SangHub Auto Farm Script Đã Tải Thành Công!")
