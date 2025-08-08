@@ -199,6 +199,7 @@ local function GetTarget()
 end
 
 -- Farm chính
+-- Farm chính nâng cấp
 task.spawn(function()
 	local activeQuest = nil
 	while task.wait() do
@@ -210,9 +211,9 @@ task.spawn(function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
 			local hrp = char.HumanoidRootPart
 
-			-- Nếu không có quest thì nhận
-			local hasQuestGui = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest") and plr.PlayerGui.Main.Quest.Visible
-			if not hasQuestGui and (not activeQuest or activeQuest == data.Quest) then
+			-- Nếu chưa có nhiệm vụ thì nhận
+			local hasQuest = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest") and plr.PlayerGui.Main.Quest.Visible
+			if not hasQuest and (not activeQuest or activeQuest == data.Quest) then
 				TweenTo(data.QuestPos)
 				task.wait(0.5)
 				rep.Remotes.CommF_:InvokeServer("StartQuest", data.Quest, 1)
@@ -220,16 +221,17 @@ task.spawn(function()
 				task.wait(1)
 			end
 
-			-- Kiểm tra hoàn thành quest chưa
-			local questDone = not plr.PlayerGui.Main.Quest.Visible
-			if questDone then activeQuest = nil end
+			-- Nếu hoàn thành quest thì cho phép nhận mới
+			if plr.PlayerGui.Main.Quest.Visible == false then
+				activeQuest = nil
+			end
 
-			-- Farm
+			-- Farm đủ số quái trong nhiệm vụ, không chuyển khi vừa giết 1 con
 			for _, mob in pairs(workspace.Enemies:GetChildren()) do
 				if mob.Name == data.Mob and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
 					local root = mob.HumanoidRootPart
 
-					-- Hitbox to
+					-- Tăng hitbox và giữ quái đứng im
 					for _, part in ipairs(mob:GetChildren()) do
 						if part:IsA("BasePart") then
 							part.Size = Vector3.new(60, 60, 60)
@@ -238,28 +240,27 @@ task.spawn(function()
 						end
 					end
 
-					-- Vị trí bay lên đầu quái
-					local high = root.Position + Vector3.new(0, 12, 0)
+					-- Vị trí trên đầu quái
+					local above = root.Position + Vector3.new(0, 12, 0)
 
 					-- Block ảo
-					local float = Instance.new("Part", root)
-					float.Size = Vector3.new(8, 1, 8)
-					float.Anchored = true
-					float.Transparency = 1
-					float.CanCollide = true
-					float.Name = "FarmFloat"
-					float.Position = high - Vector3.new(0, 2, 0)
+					local block = Instance.new("Part", root)
+					block.Size = Vector3.new(8, 1, 8)
+					block.Anchored = true
+					block.Transparency = 1
+					block.CanCollide = true
+					block.Name = "FarmFloat"
+					block.Position = above - Vector3.new(0, 2, 0)
 
-					-- Farm liên tục
 					repeat
-						TweenTo(high)
-						MakePlat(high)
+						TweenTo(above)
+						MakePlat(above)
 						ClickAttack()
 						task.wait(0.1)
 					until not autoFarm or mob.Humanoid.Health <= 0
 
-					float:Destroy()
-					break
+					block:Destroy()
+					break -- KHÔNG chuyển sang quái khác
 				end
 			end
 		else
