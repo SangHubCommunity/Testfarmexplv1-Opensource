@@ -395,3 +395,52 @@ spawn(function()
         end
     end
 end)
+-- ====== PART 4: AUTO FARM SYSTEM ======
+
+-- Auto farm loop
+spawn(function()
+    while task.wait() do
+        if getgenv().AutoFarm then
+            local data = getBestForLevel()
+            if data then
+                -- Step 1: Tween tới đảo mob
+                tweenTo(IslandPositions[data.Mob] + Vector3.new(0, 20, 0))
+                -- Step 2: Tạo block ảo
+                createFloatingPlatform()
+                -- Step 3: Chờ spawn
+                task.wait(3)
+                -- Step 4: Nhận quest
+                startQuest(data.Quest)
+                -- Step 5: Farm quái
+                while getgenv().AutoFarm and LocalPlayer.PlayerGui.Main.Quest.Visible do
+                    autoEquipSelected()
+                    local mob = findNearestMobByName(data.Mob)
+                    if mob and mob:FindFirstChild("HumanoidRootPart") then
+                        expandHitbox(mob)
+                        -- Giữ mob đứng im
+                        pcall(function()
+                            mob.HumanoidRootPart.Anchored = true
+                        end)
+                        -- Tween lên trên đầu 3 con
+                        local abovePos = mob.HumanoidRootPart.CFrame * CFrame.new(0, mob.HumanoidRootPart.Size.Y * 3, 0)
+                        tweenTo(abovePos)
+                        -- Đánh
+                        sendClick()
+                        if getgenv().FastAttack then
+                            task.wait(0.05)
+                        else
+                            task.wait(0.2)
+                        end
+                    else
+                        break
+                    end
+                end
+            end
+        else
+            removeFloatingPlatform()
+        end
+    end
+end)
+
+-- ====== END SCRIPT ======
+print("[SangHub] Script loaded successfully! Enjoy farming.")
